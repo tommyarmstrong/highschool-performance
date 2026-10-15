@@ -1,0 +1,15 @@
+[project]
+name = "education-analysis"
+version = "0.1.0"
+description = "Analysis of English secondary school performance and catchments."
+readme = "README.md"
+requires-python = ">=3.13"
+license = "MIT"
+authors = [{ name = "Tommy Armstrong" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,14 @@
+name: highschool-performance
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.13
+  - folium
+  - geopy
+  - pandas
+  - numpy
+  - matplotlib
+  - requests
+  - beautifulsoup4
+  - selenium
+  - pillow

@@ -1,0 +1,15 @@
+{
+    "dfe": {
+        "institution_level_data": {
+            "url-base": "https://explore-education-statistics.service.gov.uk",
+            "url-path": "data-catalogue/data-set",
+            "url-file": "5b3d308c-da72-467f-b2ef-ab77d576a455/csv",
+            "years": [
+                "2023/2024", 
+                "2024/2025", 
+                "2025/2026",
+                "2026/2027"
+            ]
+        }
+    }
+}

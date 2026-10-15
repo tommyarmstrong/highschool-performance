@@ -218,3 +218,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Downloaded data and generated figures
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+outputs/charts/*
+outputs/maps/*
+!outputs/charts/.gitkeep
+!outputs/maps/.gitkeep
