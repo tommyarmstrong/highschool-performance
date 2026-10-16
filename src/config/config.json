@@ -1,15 +1,35 @@
 {
-    "dfe": {
-        "institution_level_data": {
-            "url-base": "https://explore-education-statistics.service.gov.uk",
-            "url-path": "data-catalogue/data-set",
-            "url-file": "5b3d308c-da72-467f-b2ef-ab77d576a455/csv",
-            "years": [
-                "2023/2024", 
-                "2024/2025", 
-                "2025/2026",
-                "2026/2027"
-            ]
+    "schools": {
+        "137531": "Alexandra Park",
+        "102156": "Fortismere",
+        "102157": "Gladesmore",
+        "133386": "Greig",
+        "139616": "Heartlands",
+        "102154": "Highgate Wood",
+        "102153": "Hornsey",
+        "131757": "Park View",
+        "136137": "Skinners'"
+    },
+    "years": [
+        "202223", 
+        "202324", 
+        "202425", 
+        "202526"
+    ],
+    "data": {
+        "dfe": {
+            "institution_level_data": {
+                "data-set": "dfe_institution_level_data",
+                "url-base": "https://explore-education-statistics.service.gov.uk",
+                "url-path": "data-catalogue/data-set",
+                "url-file": "5b3d308c-da72-467f-b2ef-ab77d576a455/csv"
+            },
+            "institution_level_data_2026": {
+                "data-set": "dfe_institution_level_data_2026",
+                "url-base": "https://api.education.gov.uk/",
+                "url-path": "statistics/v1/data-sets/",
+                "url-file": "19e39901-a96c-be76-b9c2-6af54ae076d2/csv?dataSetVersion=2.0"
+            }
         }
     }
 }

@@ -1,0 +1,4 @@
+{
+  "python.defaultInterpreterPath": "/opt/anaconda3/envs/highschool-performance/bin/python",
+  "cursorpyright.analysis.typeCheckingMode": "basic"
+}
