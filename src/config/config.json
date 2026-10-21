@@ -18,17 +18,26 @@
     ],
     "data": {
         "dfe": {
-            "institution_level_data": {
-                "data-set": "dfe_institution_level_data",
-                "url-base": "https://explore-education-statistics.service.gov.uk",
-                "url-path": "data-catalogue/data-set",
-                "url-file": "5b3d308c-da72-467f-b2ef-ab77d576a455/csv"
+            "institution_level": {
+                "institution_level_data": {
+                    "data-set": "dfe_institution_level_data",
+                    "url-base": "https://explore-education-statistics.service.gov.uk",
+                    "url-path": "data-catalogue/data-set",
+                    "url-file": "5b3d308c-da72-467f-b2ef-ab77d576a455/csv"
+                },
+                "institution_level_data_2026": {
+                    "data-set": "dfe_institution_level_data_2026",
+                    "url-base": "https://api.education.gov.uk/",
+                    "url-path": "statistics/v1/data-sets/",
+                    "url-file": "19e39901-a96c-be76-b9c2-6af54ae076d2/csv?dataSetVersion=2.0"
+                }
+        
             },
-            "institution_level_data_2026": {
-                "data-set": "dfe_institution_level_data_2026",
-                "url-base": "https://api.education.gov.uk/",
-                "url-path": "statistics/v1/data-sets/",
-                "url-file": "19e39901-a96c-be76-b9c2-6af54ae076d2/csv?dataSetVersion=2.0"
+            "ks2_information": {
+                "data-set": "dfe_ks2_information",
+                "base-url": "https://explore-education-statistics.service.gov.uk/",
+                "url-path": "data-catalogue/data-set/",
+                "url-file": "d7ce19cb-916b-45d6-9dc1-3e581e16fa1a/csv"
             }
         }
     }

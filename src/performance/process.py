@@ -1,15 +1,111 @@
 """Process the Attainment and Progress performance data."""
 
-from pathlib import Path
-
 import pandas as pd
 
-from config.config import get_config
+from config.config import get_config, PERFORMANCE_DATA_COLUMNS
 from data_models.config_models import ConfigModel
-from shared_funcitons import download_file, logger, read_dataframe
+from shared_funcitons import check_processed_data, load_or_download_raw_data, logger
 
 
+""" Helper Functions """
 
+def _filter_schools_and_years(
+    schools_urns: dict[int, str], 
+    years: list[int], 
+    df: pd.DataFrame) -> pd.DataFrame:
+    """Filter the data for the years and schools."""
+
+    # Make URN numeric and cut a DF on the schools of interest
+    df["school_urn"] = pd.to_numeric(
+        df["school_urn"],
+        errors="coerce"
+    )
+
+    # Filter for configured years
+    df = df.loc[df["time_period"].isin(years), :]
+
+    # Filter for configured schools and add school name as a column
+    df = df.loc[df["school_urn"].isin(schools_urns), :].copy()
+    df["school"] = df["school_urn"].map(schools_urns.get)
+
+    # Log the number of schools and cohorts
+    cohorts = df.time_period.unique().tolist()
+    msg = (
+        f"Filtered to {df.school.nunique()} schools "
+        f"and {df.time_period.nunique()} cohorts: {cohorts} "
+    )
+    logger.info(msg)
+
+    return df
+
+
+""" Processor Classes """
+
+class Ks2InformationProcessor:
+    """Class to process Schools Information Data."""
+
+    def __init__(self, config: ConfigModel):
+        self.config = config
+
+        self.data_set_name: str = self.config.ks2_information_urls["data_set_name"]
+        self.url: str = self.config.ks2_information_urls["url"]
+        self.raw_data_path = config.raw_data_dir / f"{self.data_set_name}_raw.pkl"
+        self.processed_data_path = config.processed_data_dir / f"{self.data_set_name}_proc.pkl"
+        
+
+    def _select_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Select the columns of interest."""
+
+        # Rename the column to be more descriptive
+        df = df.rename(
+            columns={
+                "avg_ks2_scaledscore": "KS2 Avg"
+            }
+        )
+
+        # Keep the school name so this table can join the institution data
+        cols = ["time_period", "school", "KS2 Avg"]
+
+        # Return the selected columns
+        return df.loc[:, cols]
+
+
+    def _make_columns_numeric(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Make the columns numeric."""
+        for column in ("time_period", "school_urn", "avg_ks2_scaledscore"):
+            df[column] = pd.to_numeric(df[column], errors="coerce")
+        return df
+
+
+    def process_data(self) -> pd.DataFrame | None:
+        """Return the saved table, or build it from the raw data."""
+
+        # 1. Check if the processed data already exists
+        result = check_processed_data(self.processed_data_path)
+        if result is not None:
+            return result
+
+        # 2. Load the raw data, then filter for the years and schools
+        raw_df = load_or_download_raw_data(self.data_set_name, self.url, self.config.raw_data_dir)
+        if raw_df is None:
+            return None
+        
+        # 3. Make columns numeric, filter, select, and save
+        try:
+            ks2_df = self._make_columns_numeric(raw_df)
+            ks2_df = _filter_schools_and_years(
+                self.config.schools_urns,
+                self.config.years,
+                ks2_df,
+            )
+            ks2_df = self._select_columns(ks2_df)
+            ks2_df.to_pickle(self.processed_data_path)
+        except (KeyError, ValueError, TypeError, OSError) as e:
+            logger.error(f"Error processing KS2 information data: {e}")
+            raise
+
+        logger.info(f"Saved processed data to {self.processed_data_path}")
+        return ks2_df
 
 
 class DfEInstitutionLevelData:
@@ -17,9 +113,7 @@ class DfEInstitutionLevelData:
 
     def __init__(self, config: ConfigModel):
         self.config = config
-        self.processed_data_path = config.processed_data_dir / "dfe_institution_level_data_proc.pkl"
         self.combined_raw_data_path = config.raw_data_dir / "dfe_institution_level_combined_raw.pkl"
-
 
     def _validate_data(self, df: pd.DataFrame) -> None:
         """Validate the data."""
@@ -37,163 +131,83 @@ class DfEInstitutionLevelData:
 
 
     def _format_raw_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Format and save the raw data."""
-        
-        try:
-            # Ensure URN and other values are numeric
-            numeric_cols = [
-                "school_urn",
-                "pupil_count",
-                "attainment8_average",
-                "progress8_average",
-                "progress8_lower_95_ci",
-                "progress8_upper_95_ci"
-            ]
+        """Format the raw data."""
 
-            for col in numeric_cols:
-                df[col] = pd.to_numeric(
-                    df[col],
-                    errors="coerce"
-                )
+        # Ensure URN and other values are numeric
+        numeric_cols = [
+            "school_urn",
+            "pupil_count",
+            "attainment8_average",
+            "progress8_average",
+            "progress8_lower_95_ci",
+            "progress8_upper_95_ci"
+        ]
 
-            # Validate the data
-            self._validate_data(df)
+        for col in numeric_cols:
+            df[col] = pd.to_numeric(
+                df[col],
+                errors="coerce"
+            )
 
-            return df
-        except Exception as e:
-            logger.error(f"Error saving raw DfE institution level data: {e}")
-            raise e
+        # Validate the data
+        self._validate_data(df)
+
+        return df
 
 
-    def _load_processed_data(self) -> pd.DataFrame | None:
-        """Load the processed data."""
-        try:
-            df = read_dataframe(self.processed_data_path)
-            logger.info(f"Loaded processed DfE institution level data: {self.processed_data_path.parents[2]}")
-            return df
-        except FileNotFoundError:
-            logger.info(f"No processed DfE institution level data file: {self.processed_data_path.parents[2]}")
-            return None
-        except Exception as e:
-            logger.error(f"Error loading processed DfE institution level data: {e}")
-            raise e
-
- 
     def _load_raw_data(self) -> pd.DataFrame | None:
         """Load the raw data."""
         # Define a DataFrame
         concat_df = pd.DataFrame()
 
         # Load the raw data for each data set
-        for data_set in self.config.dfe_urls.items():
-            data_set_name: str = data_set[0]
-            url: str = data_set[1]
-            raw_data_path: Path = self.config.raw_data_dir / f"{data_set_name}_raw.pkl"
+        for data_set_name, url in self.config.institutional_urls.items():
+            # Load or download the raw data
+            raw_df = load_or_download_raw_data(data_set_name, url, self.config.raw_data_dir)
+
+            # Concatenate the formatted raw data and de-dupe
             try:
-                df = read_dataframe(raw_data_path)
-                logger.info(f"Loaded raw {data_set_name}: {raw_data_path.parents[2]}")
-            except FileNotFoundError:
-                logger.info(f"No raw {data_set_name} file: {raw_data_path.parents[2]}")
-                df = self._download_raw_data(data_set_name, url)
+                concat_df = pd.concat(
+                    [concat_df, self._format_raw_data(raw_df)],
+                    ignore_index=True,
+                )
+                concat_df = concat_df.drop_duplicates(
+                    subset=["time_period", "school_urn", "breakdown"],
+                    keep="first",
+                )
+            except (KeyError, ValueError, TypeError) as e:
+                logger.error(
+                    f"Error preparing DfE institution level data '{data_set_name}': {e}"
+                )
+                raise
 
-                # Save the data to file
-                self.config.raw_data_dir.mkdir(parents=True, exist_ok=True)
-                df.to_pickle(raw_data_path)
-                logger.info(f"Saved raw {data_set_name} to {raw_data_path.parents[2]}")
-            except Exception as e:
-                logger.error(f"Error loading {data_set_name}: {e}")
-                raise e
-
-            # Concatenate the data and de-dupe 
-            concat_df = pd.concat([concat_df, df], ignore_index=True)
-            concat_df = concat_df.drop_duplicates(
-                subset=["time_period", "school_urn", "breakdown"],
-                keep="first",
-            )
-
-            # Save the data
+        # Save the data
+        try:
             concat_df.to_pickle(self.combined_raw_data_path)
-            logger.info(f"Saved combined raw data to {self.combined_raw_data_path.parents[2]}")
+        except OSError as e:
+            logger.error(
+                f"Error saving combined raw data to {self.combined_raw_data_path}: {e}"
+            )
+            raise
+        logger.info(f"Saved formatte and combined raw data to {self.combined_raw_data_path}")
 
         return concat_df
 
 
-    def _download_raw_data(self, data_set_name: str, url: str) -> pd.DataFrame:
-        """Download the raw data."""
-        logger.info(f"Downloading {data_set_name} from {url}")
-        csv_path = self.config.raw_data_dir / f"{data_set_name}.csv"
-        try:
-            download_file(url, csv_path, retries=3)
-            df: pd.DataFrame = pd.read_csv(csv_path, low_memory=False)
-            logger.info(f"Downloaded {data_set_name} from {url}")
-
-            # Format the data
-            formatted_df = self._format_raw_data(df)
-
-            # Save the data
-            self.config.raw_data_dir.mkdir(parents=True, exist_ok=True)
-            raw_data_path: Path = self.config.raw_data_dir / f"{data_set_name}_raw.pkl"
-            formatted_df.to_pickle(raw_data_path)
-            
-            logger.info(f"Saved formatted {data_set_name} to {raw_data_path.parents[2]}")
-            return formatted_df
-        except Exception as e:
-            logger.error(f"Error downloading {data_set_name}: {e}")
-            logger.error(f"URL {url}")
-            raise e
-        finally:
-            csv_path.unlink(missing_ok=True)
-            
-
-    def _process_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Process the data."""
-
-        # TODO: This needs to call the processor when it is available
-        return df
-
-
     def load_data(self) -> pd.DataFrame | None:
-        """Load the data."""
-
-        # 1. Attempt to load processed data
-        processed_df = self._load_processed_data()
-        if processed_df is not None:
-            return processed_df
-
-        # 2. Attempt to load the raw data
+        """Load the raw institution-level data."""
         raw_df = self._load_raw_data()
         if raw_df is not None:
-            return self._process_data(raw_df)
-
+            return raw_df
+        return None
 
 
 class DfEInstitutionLevelProcessor:
     """Class to process the DfE institution level data."""
 
-    def __init__(self, config: ConfigModel, df: pd.DataFrame):
+    def __init__(self, config: ConfigModel):
         self.config = config
         self.processed_data_path = config.processed_data_dir / "dfe_institution_level_data_proc.pkl"
-
-
-    def _filter_schools_and_years(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Filter the data for the years and schools."""
-
-        # Filter for configured years
-        df = df.loc[df["time_period"].isin(self.config.years), :]
-
-        # Filter for configured schools and add school name as a column
-        df = df.loc[df["school_urn"].isin(self.config.schools_urns), :].copy()
-        df["school"] = df["school_urn"].map(self.config.schools_urns.get)
-
-        # Log the number of schools and cohorts
-        cohorts = df.time_period.unique().tolist()
-        msg = (
-            f"Filtered to {df.school.nunique()} schools "
-            f"and {df.time_period.nunique()} cohorts: {cohorts} "
-        )
-        logger.info(msg)
-
-        return df
 
     
     def _cut_a8_and_p8_scores(self, schools_df: pd.DataFrame) -> None:
@@ -430,70 +444,86 @@ class DfEInstitutionLevelProcessor:
         )
 
         result.to_pickle(self.processed_data_path)
-        logger.info(f"Saved processed data to {self.processed_data_path.parents[2]}")
+        logger.info(f"Saved processed data to {self.processed_data_path}")
 
         return result
 
 
-    def _check_processed_data(self) -> pd.DataFrame | None:
-        """Check if the processed data already exists."""
-        if self.processed_data_path.exists():
-            logger.info(f"Processed data already exists: {self.processed_data_path.parents[2]}")
-            return read_dataframe(self.processed_data_path)
-        else:
-            logger.info(f"Processed data does not exist: {self.processed_data_path.parents[2]}")
-            return None
-
-
-    def process_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Process the data."""
+    def process_data(self) -> pd.DataFrame | None:
+        """Return the saved table, or build it from the raw data."""
 
         # 1. Check if the processed data already exists
-        result = self._check_processed_data()
+        result = check_processed_data(self.processed_data_path)
         if result is not None:
             return result
 
-        # 2. Filter the data for the years and schools
-        schools_df = self._filter_schools_and_years(df)
+        # 2. Load the raw data, then filter for the years and schools
+        raw_df = DfEInstitutionLevelData(self.config).load_data()
+        if raw_df is None:
+            return None
 
-        # 3. Cut a dataframe with the overall A8 and P8 scores
-        self._cut_a8_and_p8_scores(schools_df)
-
-        # 4. Process and pivot the prior data
-        self._pivot_prior_metrics(self._build_prior_data(schools_df))
-
-        # 5. Process and pivot the sex data
-        self._pivot_sex_metrics(self._build_sex_data(schools_df))
-
-        # 6. Compile the final data
-        return self._compile_final_data()
+        # 3. Filter, pivot, compile, and save
+        try:
+            schools_df = _filter_schools_and_years(
+                self.config.schools_urns,
+                self.config.years,
+                raw_df,
+            )
+            self._cut_a8_and_p8_scores(schools_df)
+            self._pivot_prior_metrics(self._build_prior_data(schools_df))
+            self._pivot_sex_metrics(self._build_sex_data(schools_df))
+            return self._compile_final_data()
+        except (KeyError, ValueError, TypeError, OSError) as e:
+            logger.error(f"Error processing DfE institution level data: {e}")
+            raise
 
 
 def run_performance() -> None:
     """Process the performance data."""
 
     config = get_config()
-    dfe_institutional = DfEInstitutionLevelData(config)
 
-    # 1. Load the DfE institution level data
-    df = dfe_institutional.load_data()
-
-
-    # 2. Process the DfE institution level data
-    if df is not None:
-        processor = DfEInstitutionLevelProcessor(config, df)
-        result = processor.process_data(df)
-        if result is not None:
-            logger.info(f"DfE institution level processed data shape: {result.shape}")    
+    # 1. Check if the processed data already exists
+    result = check_processed_data(config.processed_data_dir / "performance_data_merged.pkl")
+    if result is not None:
+        logger.info(f"Performance data already exists, with shape: {result.shape}")
+        print(result.head())
+        return None
     
-    else:
-        logger.error("No DfE institution level data found")
-    
+    # 2. Load and Process DfE Institution Level Data
+    result = DfEInstitutionLevelProcessor(config).process_data()
+    if result is None:
+        logger.error("No DfE institution level data was found")
+        return None
+
+    # 3. Load and Process DfE Key Stage 2 Data
+    ks2 = Ks2InformationProcessor(config).process_data()
+    if ks2 is None:
+        logger.error("No DfE key stage 2 data found")
+        return None
+
+    # 4. Merge the tables, keep the performance columns, and save
+    merged_path = config.processed_data_dir / "performance_data_merged.pkl"
+    try:
+        merged_df = result.merge(
+            ks2,
+            on=["time_period", "school"],
+            how="left",
+        )
+        merged_df = merged_df.loc[:, PERFORMANCE_DATA_COLUMNS]
+        merged_df.to_pickle(merged_path)
+    except (KeyError, ValueError, OSError) as e:
+        logger.error(f"Error merging performance data: {e}")
+        raise
+
+    logger.info(f"Saved merged data {merged_df.shape} to {merged_path}")
+
     return None
 
 
 def main() -> None:
     """Main function to run the performance analysis."""
+    
     run_performance()
     return None
 

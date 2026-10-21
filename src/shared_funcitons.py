@@ -25,6 +25,14 @@ logger = setup_logging()
 
 
 """ Data """
+def check_processed_data(file_path: Path) -> pd.DataFrame | None:
+    """Check if the processed data already exists."""
+    if file_path.exists():
+        return read_dataframe(file_path)
+    else:
+        return None
+
+        
 def read_dataframe(path: Path) -> pd.DataFrame:
     """Load a pickled pandas DataFrame."""
     loaded = pd.read_pickle(path)
@@ -66,3 +74,39 @@ def download_file(url: str, dest: Path, retries: int = 3) -> None:
             if attempt == retries:
                 raise
             time.sleep(2 ** (attempt - 1))
+
+
+def download_raw_data(data_set_name: str, url: str, raw_data_dir: Path) -> pd.DataFrame:
+    """Download the raw data."""
+    csv_path: Path = raw_data_dir / f"{data_set_name}.csv"
+    raw_data_path: Path = raw_data_dir / f"{data_set_name}_raw.pkl"
+
+    try:
+        download_file(url, csv_path, retries=3)
+        df: pd.DataFrame = pd.read_csv(csv_path, low_memory=False)
+
+        # Save the data
+        raw_data_dir.mkdir(parents=True, exist_ok=True)
+        df.to_pickle(raw_data_path)
+
+        logger.info(f"Saved data to {raw_data_path}")
+        return df
+    except Exception as e:
+        logger.error(f"Error downloading data set '{data_set_name}' from {url}: {e}")
+        raise e
+    finally:
+        csv_path.unlink(missing_ok=True)
+
+
+def load_or_download_raw_data(data_set_name: str, url: str, raw_data_dir: Path) -> pd.DataFrame:
+    """Load or download the raw data."""
+    raw_data_path: Path = raw_data_dir / f"{data_set_name}_raw.pkl"
+    try:
+        df = read_dataframe(raw_data_path)
+        logger.info(f"Loaded raw data set from {raw_data_path}")
+        return df
+    except FileNotFoundError:
+        return download_raw_data(data_set_name, url, raw_data_dir)
+    except Exception as e:
+        logger.error(f"Error loading data set '{data_set_name}': {e}")
+        raise e

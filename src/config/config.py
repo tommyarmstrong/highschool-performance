@@ -4,9 +4,47 @@ import json
 from pathlib import Path
 
 from data_models.config_models import ConfigModel
-from shared_funcitons import logger
 
 CONFIG_PATH = Path(__file__).resolve().parent / "config.json"
+PERFORMANCE_DATA_COLUMNS = [
+    "time_period",
+    "school",
+    "A8 Average",
+    "P8 Average",
+    "P8 CI Lower",
+    "P8 CI Upper",
+    "KS2 Avg",
+    "KS2 Low N",
+    "KS2 High N",
+    "KS2 Middle N",
+    "KS2 Low",
+    "KS2 Middle",
+    "KS2 High",
+    "A8 Low",
+    "A8 Middle",
+    "A8 High",
+    "P8 Low",
+    "P8 Low CI Lower",
+    "P8 Low CI Upper",
+    "P8 Middle",
+    "P8 Middle CI Lower",
+    "P8 Middle CI Upper",
+    "P8 High",
+    "P8 High CI Lower",
+    "P8 High CI Upper",
+    "Boys N",
+    "Boys %",
+    "A8 Boys",
+    "P8 Boys",
+    "P8 Boys CI Lower",
+    "P8 Boys CI Upper",
+    "Girls N",
+    "Girls %",
+    "A8 Girls",
+    "P8 Girls",
+    "P8 Girls CI Lower",
+    "P8 Girls CI Upper"    
+]
 
 
 def validate_config(config: dict) -> None:
@@ -48,7 +86,6 @@ def _load_config(config_path: Path = CONFIG_PATH) -> dict:
     # Validate the config
     validate_config(config)
 
-    logger.info(f"Config loaded from {config_path}")
     return config
 
 
@@ -60,12 +97,27 @@ def _dfe_institution_url(institution_level_data: dict) -> str:
     return f"{base_url}/{url_path}/{url_file}"
 
 
-def _dfe_urls(dfe_data: dict) -> dict[str, str]:
+def _institutional_urls(dfe_data: dict) -> dict[str, str]:
     """Map each dataset file name to its download URL."""
     return {
         entry["data-set"]: _dfe_institution_url(entry)
         for entry in dfe_data.values()
     }
+
+
+def _ks2_information_urls(ks2_information_data: dict) -> dict[str, str]:
+    """Build the DfE KS2 information data URL."""
+    data_set: str = ks2_information_data["data-set"]
+    base_url: str = ks2_information_data["base-url"].rstrip("/")
+    url_path: str = ks2_information_data["url-path"].strip("/")
+    url_file: str = ks2_information_data["url-file"].lstrip("/")
+
+    ks2_data: dict[str, str] = {
+        "data_set_name": data_set, 
+        "url": f"{base_url}/{url_path}/{url_file}"
+    }
+
+    return ks2_data
 
 
 def get_config(config_path: Path = CONFIG_PATH) -> ConfigModel:
@@ -74,12 +126,15 @@ def get_config(config_path: Path = CONFIG_PATH) -> ConfigModel:
 
     schools: dict[int, str] = config["schools"]
     project_root = Path(__file__).resolve().parents[2]
+    institutional_config = config["data"]["dfe"]["institution_level"]
+    ks2_information_config = config["data"]["dfe"]["ks2_information"]
 
     return ConfigModel(
         schools_urns=schools,
         schools_names=list[str](schools.values()),
         years=config["years"],
-        dfe_urls=_dfe_urls(config["data"]["dfe"]),
+        institutional_urls=_institutional_urls(institutional_config),
+        ks2_information_urls=_ks2_information_urls(ks2_information_config),
         project_root=project_root,
         raw_data_dir=project_root / "data" / "raw",
         processed_data_dir=project_root / "data" / "processed",
