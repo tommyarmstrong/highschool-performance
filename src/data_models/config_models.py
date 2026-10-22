@@ -12,5 +12,4 @@ class ConfigModel:
     project_root: Path
     raw_data_dir: Path
     processed_data_dir: Path
-
-
+    charts_dir: Path

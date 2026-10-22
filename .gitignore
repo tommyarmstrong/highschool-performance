@@ -11,10 +11,10 @@ data/raw/*
 data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
-outputs/charts/*
-outputs/maps/*
-!outputs/charts/.gitkeep
-!outputs/maps/.gitkeep
+charts/*
+maps/*
+!charts/.gitkeep
+!maps/.gitkeep
 
 # Local editor files
 highschool-performance.code-workspace

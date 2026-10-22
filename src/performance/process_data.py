@@ -209,7 +209,20 @@ class DfEInstitutionLevelProcessor:
         self.config = config
         self.processed_data_path = config.processed_data_dir / "dfe_institution_level_data_proc.pkl"
 
-    
+    def _make_columns_numeric(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Make the columns numeric."""
+        for column in (
+            "time_period",
+            "school_urn",
+            "pupil_count",
+            "attainment8_average",
+            "progress8_average",
+            "progress8_lower_95_ci",
+            "progress8_upper_95_ci",
+        ):
+            df[column] = pd.to_numeric(df[column], errors="coerce")
+        return df
+
     def _cut_a8_and_p8_scores(self, schools_df: pd.DataFrame) -> None:
         """Cut a dataframe with the overall A8 and P8 scores"""
 
@@ -462,12 +475,13 @@ class DfEInstitutionLevelProcessor:
         if raw_df is None:
             return None
 
-        # 3. Filter, pivot, compile, and save
+        # 3. Make columns numeric, then filter, pivot, compile, and save
         try:
+            schools_df = self._make_columns_numeric(raw_df)
             schools_df = _filter_schools_and_years(
                 self.config.schools_urns,
                 self.config.years,
-                raw_df,
+                schools_df,
             )
             self._cut_a8_and_p8_scores(schools_df)
             self._pivot_prior_metrics(self._build_prior_data(schools_df))
@@ -478,7 +492,7 @@ class DfEInstitutionLevelProcessor:
             raise
 
 
-def run_performance() -> None:
+def get_performance_data() -> pd.DataFrame | None:
     """Process the performance data."""
 
     config = get_config()
@@ -487,8 +501,7 @@ def run_performance() -> None:
     result = check_processed_data(config.processed_data_dir / "performance_data_merged.pkl")
     if result is not None:
         logger.info(f"Performance data already exists, with shape: {result.shape}")
-        print(result.head())
-        return None
+        return result
     
     # 2. Load and Process DfE Institution Level Data
     result = DfEInstitutionLevelProcessor(config).process_data()
@@ -518,14 +531,12 @@ def run_performance() -> None:
 
     logger.info(f"Saved merged data {merged_df.shape} to {merged_path}")
 
-    return None
+    return result
 
 
 def main() -> None:
-    """Main function to run the performance analysis."""
-    
-    run_performance()
-    return None
+    """ Main function to run the performance analysis. """
+    get_performance_data()
 
 
 if __name__ == "__main__":
