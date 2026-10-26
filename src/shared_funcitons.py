@@ -83,7 +83,11 @@ def download_raw_data(data_set_name: str, url: str, raw_data_dir: Path) -> pd.Da
 
     try:
         download_file(url, csv_path, retries=3)
-        df: pd.DataFrame = pd.read_csv(csv_path, low_memory=False)
+        # Handle different character encodings
+        try:
+            df: pd.DataFrame = pd.read_csv(url, low_memory=False, encoding="utf-8")
+        except UnicodeDecodeError:
+            df = pd.read_csv(url, low_memory=False, encoding="cp1252")
 
         # Save the data
         raw_data_dir.mkdir(parents=True, exist_ok=True)

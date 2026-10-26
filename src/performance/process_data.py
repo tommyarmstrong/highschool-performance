@@ -47,8 +47,7 @@ class Ks2InformationProcessor:
     def __init__(self, config: ConfigModel):
         self.config = config
 
-        self.data_set_name: str = self.config.ks2_information_urls["data_set_name"]
-        self.url: str = self.config.ks2_information_urls["url"]
+        (self.data_set_name, self.url), = self.config.ks2_information_urls.items()
         self.raw_data_path = config.raw_data_dir / f"{self.data_set_name}_raw.pkl"
         self.processed_data_path = config.processed_data_dir / f"{self.data_set_name}_proc.pkl"
         

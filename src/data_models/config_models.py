@@ -9,6 +9,9 @@ class ConfigModel:
     years: list[int]
     institutional_urls: dict[str, str]
     ks2_information_urls: dict[str, str]
+    applications_urls: dict[str, str]
+    census_urls: dict[str, str]
+    census_years: list[str]
     project_root: Path
     raw_data_dir: Path
     processed_data_dir: Path

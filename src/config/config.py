@@ -46,6 +46,22 @@ PERFORMANCE_DATA_COLUMNS = [
     "P8 Girls CI Upper"    
 ]
 
+APPLICATIONS_COLUMNS = {
+    "time_period": "time_period",
+    "school": "school",
+    "school_name": "school_name",
+    "school_urn": "school_urn",
+    "total_number_places_offered": "Total Offers",
+    "times_put_as_any_preferred_school": "Total Applications",
+    "times_put_as_1st_preference": "First Choice Applications",
+    "times_put_as_2nd_preference": "Second Choice Applications",
+    "times_put_as_3rd_preference": "Third Choice Applications",
+    "number_1st_preference_offers": "First Choice Offers",
+    "number_2nd_preference_offers": "Second Choice Offers",
+    "number_3rd_preference_offers": "Third Choice Offers",
+    "number_preferred_offers": "Preferred Offers",
+}
+
 
 def validate_config(config: dict) -> None:
     """Validate the config file."""
@@ -89,35 +105,17 @@ def _load_config(config_path: Path = CONFIG_PATH) -> dict:
     return config
 
 
-def _dfe_institution_url(institution_level_data: dict) -> str:
-    """Build the DfE institution-level data URL."""
-    base_url: str = institution_level_data["url-base"].rstrip("/")
-    url_path: str = institution_level_data["url-path"].strip("/")
-    url_file: str = institution_level_data["url-file"].lstrip("/")
-    return f"{base_url}/{url_path}/{url_file}"
+def _build_url(url_data: dict) -> str:
+    """Join the base, path, and file of a DfE download URL."""
+    return "/".join(
+        url_data[part].strip("/")
+        for part in ("url-base", "url-path", "url-file")
+    )
 
 
-def _institutional_urls(dfe_data: dict) -> dict[str, str]:
-    """Map each dataset file name to its download URL."""
-    return {
-        entry["data-set"]: _dfe_institution_url(entry)
-        for entry in dfe_data.values()
-    }
-
-
-def _ks2_information_urls(ks2_information_data: dict) -> dict[str, str]:
-    """Build the DfE KS2 information data URL."""
-    data_set: str = ks2_information_data["data-set"]
-    base_url: str = ks2_information_data["base-url"].rstrip("/")
-    url_path: str = ks2_information_data["url-path"].strip("/")
-    url_file: str = ks2_information_data["url-file"].lstrip("/")
-
-    ks2_data: dict[str, str] = {
-        "data_set_name": data_set, 
-        "url": f"{base_url}/{url_path}/{url_file}"
-    }
-
-    return ks2_data
+def _dataset_urls(*entries: dict) -> dict[str, str]:
+    """Map each dataset name to its download URL."""
+    return {entry["data-set"]: _build_url(entry) for entry in entries}
 
 
 def get_config(config_path: Path = CONFIG_PATH) -> ConfigModel:
@@ -128,13 +126,19 @@ def get_config(config_path: Path = CONFIG_PATH) -> ConfigModel:
     project_root = Path(__file__).resolve().parents[2]
     institutional_config = config["data"]["dfe"]["institution_level"]
     ks2_information_config = config["data"]["dfe"]["ks2_information"]
+    applications_config = config["data"]["dfe"]["applications_2026"]
+    census_config = config["data"]["dfe"]["census_2026"]
+    census_years = config["census_years"]
 
     return ConfigModel(
         schools_urns=schools,
         schools_names=list[str](schools.values()),
         years=config["years"],
-        institutional_urls=_institutional_urls(institutional_config),
-        ks2_information_urls=_ks2_information_urls(ks2_information_config),
+        institutional_urls=_dataset_urls(*institutional_config.values()),
+        ks2_information_urls=_dataset_urls(ks2_information_config),
+        applications_urls=_dataset_urls(applications_config),
+        census_urls=_dataset_urls(census_config),
+        census_years=census_years,
         project_root=project_root,
         raw_data_dir=project_root / "data" / "raw",
         processed_data_dir=project_root / "data" / "processed",

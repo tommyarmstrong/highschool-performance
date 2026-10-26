@@ -16,6 +16,14 @@
         "202425", 
         "202526"
     ],
+    "census_years": [
+        "2020-21",
+        "2021-22",
+        "2022-23",
+        "2023-24",
+        "2024-25",
+        "2025-26"
+    ],
     "data": {
         "dfe": {
             "institution_level": {
@@ -27,17 +35,29 @@
                 },
                 "institution_level_data_2026": {
                     "data-set": "dfe_institution_level_data_2026",
-                    "url-base": "https://api.education.gov.uk/",
-                    "url-path": "statistics/v1/data-sets/",
+                    "url-base": "https://api.education.gov.uk",
+                    "url-path": "statistics/v1/data-sets",
                     "url-file": "19e39901-a96c-be76-b9c2-6af54ae076d2/csv?dataSetVersion=2.0"
                 }
         
             },
             "ks2_information": {
                 "data-set": "dfe_ks2_information",
-                "base-url": "https://explore-education-statistics.service.gov.uk/",
+                "url-base": "https://explore-education-statistics.service.gov.uk",
                 "url-path": "data-catalogue/data-set/",
                 "url-file": "d7ce19cb-916b-45d6-9dc1-3e581e16fa1a/csv"
+            },
+            "applications_2026": {
+                "data-set": "dfe_applications_2026",
+                "url-base": "https://content.explore-education-statistics.service.gov.uk",
+                "url-path": "api/releases/0bf4f9cf-721d-44e3-8473-266c87e17e00/files",
+                "url-file": "42d0d4e4-9604-413a-8275-00b829ffbdcb"
+            },
+            "census_2026": {
+                "data-set": "dfe_census_2026",
+                "url-base": "https://explore-education-statistics.service.gov.uk/",
+                "url-path": "find-statistics/school-pupils-and-their-characteristics",
+                "url-file": ""
             }
         }
     }
