@@ -311,6 +311,7 @@ def plot_p8_sex_year(
         file_path = config.charts_dir / f"p8_{'_'.join(sexes).lower()}.png"
         plt.savefig(file_path, dpi=300)
         logger.info(f"Saved: {file_path}")
+        plt.close(fig)
     else:
         plt.show()
 
@@ -530,6 +531,7 @@ def plot_by_sex(
     if save_png:
         plt.savefig(file_path, dpi=300)
         logger.info(f"Saved: {file_path}")
+        plt.close(fig)
     else:
         plt.show()
 

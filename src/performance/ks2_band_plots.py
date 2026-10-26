@@ -124,6 +124,7 @@ def plot_a8_p8_trends(df: pd.DataFrame, schools: list[str] | None = None, save_p
                 bbox_inches="tight",
             )
             logger.info(f"Saved: {file_path}")
+            plt.close(fig)
         else:
             plt.show()
 
@@ -231,6 +232,9 @@ def plot_a8_ks2_scatter(df: pd.DataFrame, save_png: bool = True) -> None:
             bbox_inches="tight",
         )
         logger.info(f"Saved: {file_path}")
+        plt.close(fig)
+    else:
+        plt.show()
 
 
 def plot_p8_ks2_scatter(df: pd.DataFrame, save_png: bool = True) -> None:
@@ -357,7 +361,9 @@ def plot_p8_ks2_scatter(df: pd.DataFrame, save_png: bool = True) -> None:
             bbox_inches="tight",
         )
         logger.info(f"Saved: {file_path}")
-    
+        plt.close(fig)
+    else:
+        plt.show()
     return None
 
 
@@ -393,15 +399,17 @@ def plot_ks2_band_distribution(
 
     plt.tight_layout()
 
+    fig = ax.figure
     if save_png:
-        fig = ax.figure
         fig.savefig(
             file_path,
             dpi=300,
             bbox_inches="tight",
         )
         logger.info(f"Saved: {file_path}")
-
+        plt.close(fig)
+    else:
+        plt.show()
     return None
 
 
@@ -447,18 +455,25 @@ def plot_a8_band_distribution(
 
     plt.tight_layout()
 
+    fig = ax.figure
     if save_png:
-        fig = ax.figure
         fig.savefig(
             file_path,
             dpi=300,
             bbox_inches="tight",
         )
         logger.info(f"Saved: {file_path}")
+        plt.close(fig)
+    else:
+        plt.show()
     return None
 
 
-def tabulate_a8_band_distribution(df: pd.DataFrame, year: int=202324) -> None:
+def tabulate_a8_band_distribution(
+    df: pd.DataFrame,
+    year: int = 202324,
+    save_png: bool = True,
+) -> None:
     """Tabulate the A8 band distribution for one cohort."""
 
     table = df.loc[
@@ -552,13 +567,16 @@ def tabulate_a8_band_distribution(df: pd.DataFrame, year: int=202324) -> None:
         fontsize=9,
     )
 
-    fig.savefig(
-        file_path,
-        dpi=300,
-        bbox_inches="tight",
-    )
-    logger.info(f"Saved: {file_path}")
-    plt.close(fig)
+    if save_png:
+        fig.savefig(
+            file_path,
+            dpi=300,
+            bbox_inches="tight",
+        )
+        logger.info(f"Saved: {file_path}")
+        plt.close(fig)
+    else:
+        plt.show()
 
 
 def plot_p8_by_prior_attainment(
@@ -873,6 +891,9 @@ def plot_p8_by_prior_attainment(
             bbox_inches="tight",
         )
         logger.info(f"Saved: {file_path}")
+        plt.close(fig)
+    else:
+        plt.show()
     return None
 
 
@@ -1162,6 +1183,8 @@ def plot_by_prior_attainment(
             bbox_inches="tight",
         )
         logger.info(f"Saved: {file_path}")
-
+        plt.close(fig)
+    else:
+        plt.show()
     return None
 

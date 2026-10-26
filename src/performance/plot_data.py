@@ -16,7 +16,7 @@ from shared_funcitons import logger, read_dataframe
 
 config = get_config()
 
-def plot_performance_data() -> None:
+def plot_performance_data(save_png: bool = True) -> None:
     """Plot the performance data."""
 
     # Load data
@@ -24,24 +24,28 @@ def plot_performance_data() -> None:
     logger.info(f"Plot data shape: {df.shape}")
 
     # Plot Attainment 8 and Progress 8 trends based on KS2 band
-    plot_a8_p8_trends(df, save_png=True)
-    plot_a8_ks2_scatter(df, save_png=True)
-    plot_p8_ks2_scatter(df, save_png=True)
-    plot_ks2_band_distribution(df, year=202324, save_png=True)
-    plot_a8_band_distribution(df, year=202324, save_png=True)
-    tabulate_a8_band_distribution(df, year=202324)
-    plot_by_prior_attainment(df, time_period=202324)
-    plot_by_prior_attainment(df, time_period=202324, metric="a8")
-    plot_by_prior_attainment(df, file_name="p8_all_years_by_prior_attainment.png")
+    plot_a8_p8_trends(df, save_png=save_png)
+    plot_a8_ks2_scatter(df, save_png=save_png)
+    plot_p8_ks2_scatter(df, save_png=save_png)
+    plot_ks2_band_distribution(df, year=202324, save_png=save_png)
+    plot_a8_band_distribution(df, year=202324, save_png=save_png)
+    tabulate_a8_band_distribution(df, year=202324, save_png=save_png)
+    plot_by_prior_attainment(df, time_period=202324, save_png=save_png)
+    plot_by_prior_attainment(df, time_period=202324, metric="a8", save_png=save_png)
+    plot_by_prior_attainment(
+        df,
+        file_name="p8_all_years_by_prior_attainment.png",
+        save_png=save_png,
+    )
 
 
     # Plot Progress 8 by sex
-    plot_p8_sex_year(df)
-    plot_p8_sex_year(df, sex="Boys")
-    plot_p8_sex_year(df, sex="Girls")
+    plot_p8_sex_year(df, save_png=save_png)
+    plot_p8_sex_year(df, sex="Boys", save_png=save_png)
+    plot_p8_sex_year(df, sex="Girls", save_png=save_png)
 
     # Plot all schools Performance 8 by sex for 2022/23 and 2023/24
-    plot_by_sex(df, metric="p8", time_period=[202223,202324])
+    plot_by_sex(df, metric="p8", time_period=[202223,202324], save_png=save_png)
 
     # Plot all schools Attainment 8 by sex for all years 
     # Cannot fit all schools on one chart, so split into multiple charts
@@ -51,6 +55,6 @@ def plot_performance_data() -> None:
         "a8_by_sex_PV-S-STM.png": ["Park View", "Skinners", "St Thomas More"] 
         }
     for file_name, schools in schools_to_filter.items():
-        plot_by_sex(df, metric="a8", schools=schools, file_name=file_name)
+        plot_by_sex(df, metric="a8", schools=schools, file_name=file_name, save_png=save_png)
 
     return None

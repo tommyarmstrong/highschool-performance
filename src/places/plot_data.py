@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -8,6 +9,18 @@ from shared_funcitons import logger, read_dataframe
 
 
 config = get_config()
+
+
+def _finish_plot(fig: Figure, file_name: str, save_png: bool) -> None:
+    """Save the figure, or show it when saving is turned off."""
+    if save_png:
+        file_path = config.charts_dir / file_name
+        fig.savefig(file_path, dpi=300, bbox_inches="tight")
+        logger.info(f"Saved plot to {file_path}")
+        plt.close(fig)
+        return
+    plt.show()
+
 
 (data_set_name, _), = config.applications_urls.items()
 processed_data_path = config.processed_data_dir / f"{data_set_name}_proc.pkl"
@@ -113,12 +126,7 @@ def plot_applications(
     )
 
     plt.tight_layout()
-    if save_png:
-        filename = _plot_filename(metric)
-        plt.savefig(filename)
-        logger.info(f"Saved plot to {filename}")
-    else:
-        plt.show()
+    _finish_plot(fig, _plot_filename(metric).name, save_png)
 
 
 def _filter_schools(df: pd.DataFrame, schools: list[str] | None = None) -> pd.DataFrame:
@@ -154,6 +162,7 @@ def format_year_axis(ax, data):
 def plot_applications_and_rolls(
     df: pd.DataFrame,
     schools: list[str] | None = None,
+    save_png: bool = True,
 ) -> None:
     """Plot applications, offers, and Year 7 rolls over time."""
 
@@ -246,12 +255,13 @@ def plot_applications_and_rolls(
     )
 
     plt.tight_layout(rect=(0, 0, 0.81, 0.98))
-    plt.show()
+    _finish_plot(fig, "applications_and_rolls.png", save_png)
 
 
 def plot_stacked_applications(
     df: pd.DataFrame,
     schools: list[str] | None = None,
+    save_png: bool = True,
 ) -> None:
     """Plot applications stacked by preference rank."""
 
@@ -324,13 +334,14 @@ def plot_stacked_applications(
     )
 
     plt.tight_layout()
-    plt.show()
+    _finish_plot(fig, "stacked_applications.png", save_png)
 
 
 def plot_applications_vs_offers(
     df: pd.DataFrame,
     schools: list[str] | None = None,
     year: int | None = None,
+    save_png: bool = True,
 ) -> None:
     """Plot applications against offers by preference rank."""
 
@@ -401,12 +412,13 @@ def plot_applications_vs_offers(
     )
 
     plt.tight_layout()
-    plt.show()
+    _finish_plot(fig, f"applications_vs_offers_{year}.png", save_png)
 
 
 def plot_first_choice_demand(
     df: pd.DataFrame,
     schools: list[str] | None = None,
+    save_png: bool = True,
 ) -> None:
     """Plot first-choice demand per 100 offers."""
 
@@ -446,12 +458,13 @@ def plot_first_choice_demand(
     ax.legend(bbox_to_anchor=(1.02, 1), loc="upper left")
 
     plt.tight_layout()
-    plt.show()
+    _finish_plot(fig, "first_choice_demand.png", save_png)
 
 
 def plot_roll_vs_offers(
     df: pd.DataFrame,
     schools: list[str] | None = None,
+    save_png: bool = True,
 ) -> None:
     """Plot the Year 7 roll against offers."""
 
@@ -491,12 +504,13 @@ def plot_roll_vs_offers(
     ax.legend(bbox_to_anchor=(1.02, 1), loc="upper left")
 
     plt.tight_layout()
-    plt.show()
+    _finish_plot(fig, "roll_vs_offers.png", save_png)
 
 
 def plot_non_preference_allocations(
     df: pd.DataFrame,
     schools: list[str] | None = None,
+    save_png: bool = True,
 ) -> None:
     """Plot non-preference allocations."""
 
@@ -529,12 +543,13 @@ def plot_non_preference_allocations(
     ax.legend(bbox_to_anchor=(1.02, 1), loc="upper left")
 
     plt.tight_layout()
-    plt.show()
+    _finish_plot(fig, "non_preference_allocations.png", save_png)
 
 
 def plot_first_choice_offer_rate(
     df: pd.DataFrame,
     schools: list[str] | None = None,
+    save_png: bool = True,
 ) -> None:
     """Plot the first-choice offer rate."""
 
@@ -567,12 +582,13 @@ def plot_first_choice_offer_rate(
     ax.legend(bbox_to_anchor=(1.02, 1), loc="upper left")
 
     plt.tight_layout()
-    plt.show()
+    _finish_plot(fig, "first_choice_offer_rate.png", save_png)
 
 
 def plot_offers_vs_roll(
     df: pd.DataFrame,
     schools: list[str] | None = None,
+    save_png: bool = True,
 ) -> None:
     """Plot offers, Year 7 roll and first-choice applications by school."""
 
@@ -682,21 +698,22 @@ def plot_offers_vs_roll(
     )
 
     plt.tight_layout()
+    _finish_plot(fig, "offers_vs_roll.png", save_png)
 
 
-def plot_places_data() -> None:
+def plot_places_data(save_png: bool = True) -> None:
     """Plot the performance data."""
 
     # 1. Load data
     df: pd.DataFrame = read_dataframe(processed_data_path)
 
     # 2. Plot applications data
-    plot_applications(df, metric="First Choice Applications")
-    plot_applications(df, metric="Total Applications")
-    plot_applications(df, metric="First Choice Offers")
-    plot_applications(df, metric="Total Offers")
-    plot_applications(df, metric="First Choice Share (%)")
-    plot_applications(df, metric="Non-Preference Allocations")
-    plot_applications(df, metric="Non-Preference Allocations (%)")
+    plot_applications(df, metric="First Choice Applications", save_png=save_png)
+    plot_applications(df, metric="Total Applications", save_png=save_png)
+    plot_applications(df, metric="First Choice Offers", save_png=save_png)
+    plot_applications(df, metric="Total Offers", save_png=save_png)
+    plot_applications(df, metric="First Choice Share (%)", save_png=save_png)
+    plot_applications(df, metric="Non-Preference Allocations", save_png=save_png)
+    plot_applications(df, metric="Non-Preference Allocations (%)", save_png=save_png)
 
     # 3. Plot census data
