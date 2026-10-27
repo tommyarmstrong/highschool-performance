@@ -13,6 +13,23 @@ Configurations, such as which schools and years, to analyse are set in the JSON 
    - To add school catchment distances, typically available from authority websites, edit `src\catchment_distances.json`
 
 
+## Setup
+
+The conda environment is named `highschool-performance` and is defined in `environment.yml` (conda-forge, Python >= 3.13).
+
+```bash
+conda env create -f environment.yml
+conda activate highschool-performance
+```
+
+If the environment already exists, update it:
+
+```bash
+conda env update -f environment.yml
+```
+
+Saving Folium catchment maps to PNG uses headless Chrome via Selenium. The helper looks for `chromium`, `chromium-browser`, or `google-chrome` on PATH, and for the macOS app bundles at `/Applications/Google Chrome.app` and `/Applications/Chromium.app` (and the same paths under the user Applications folder). conda-forge does not publish a `chromium` package for osx-64. On macOS, Google Chrome or Chromium installed as a normal app is enough. Selenium downloads a matching ChromeDriver itself.
+
 ## Run
 
 To run the full pipeline, from `src/` run:
@@ -35,9 +52,12 @@ Each pipeline can also be run on its own:
 ```bash
 python -m performance.run_performance
 python -m places.run_places
+python -m catchment.run_catchment
 ```
 
-Raw and processed data are saved under `data/` and charts under `charts/`. Stored data will be used where it is available. To reprocess data, for example after a config change, delete the relevant files in `/data/processed/`. To re-download raw data from source, delete bothe processed data files in `data/processed/` and `data/raw/`. 
+The catchment pipeline loads school coordinates and catchment distances from config, then writes catchment charts under `charts/`.
+
+Raw and processed data are saved under `data/` and charts under `charts/`. Stored data will be used where it is available. To reprocess data, for example after a config change, delete the relevant files in `/data/processed/`. To re-download raw data from source, delete bothe processed data files in `data/processed/` and `data/raw/`.
 
 ## Layout
 
