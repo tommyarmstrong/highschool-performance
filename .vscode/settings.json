@@ -1,6 +1,10 @@
 {
   "python.defaultInterpreterPath": "/opt/anaconda3/envs/highschool-performance/bin/python",
+  "python.pythonPath": "/opt/anaconda3/envs/highschool-performance/bin/python",
   "cursorpyright.analysis.typeCheckingMode": "basic",
+  "cursorpyright.analysis.extraPaths": [
+    "src"
+  ],
   "python-envs.defaultEnvManager": "ms-python.python:conda",
   "python-envs.defaultPackageManager": "ms-python.python:conda"
 }

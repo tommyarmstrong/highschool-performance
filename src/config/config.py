@@ -5,7 +5,13 @@ from pathlib import Path
 
 from data_models.config_models import ConfigModel
 
+CatchmentDistances = dict[int, dict[str, float | None]]
+SchoolCoords = dict[str, tuple[float, float]]
+
 CONFIG_PATH = Path(__file__).resolve().parent / "config.json"
+CATCHMENT_DISTANCES_PATH = Path(__file__).resolve().parent / "catchment_distances.json"
+SCHOOL_ADDRESSES_PATH = Path(__file__).resolve().parent / "school_addresses.json"
+
 PERFORMANCE_DATA_COLUMNS = [
     "time_period",
     "school",
@@ -80,7 +86,7 @@ def validate_config(config: dict) -> None:
         raise ValueError("Years must be a list of integers.")
 
 
-def _load_config(config_path: Path = CONFIG_PATH) -> dict:
+def _load_json_config(config_path: Path = CONFIG_PATH) -> dict:
     """Load the config file and return as a dictionary."""
     
     # Validate that the config file exists
@@ -95,13 +101,13 @@ def _load_config(config_path: Path = CONFIG_PATH) -> dict:
     if not config:
         raise ValueError(f"Config file {config_path} is empty.")
 
-    # Convert the URNs and years to integers
+    return config
+
+
+def _engineer_urns(config: dict) -> dict[int | str, str]:
+    """Convert the URNs and years to integers."""
     config["schools"] = {int(urn): name for urn, name in config["schools"].items()}
     config["years"] = [int(year) for year in config["years"]]
-
-    # Validate the config
-    validate_config(config)
-
     return config
 
 
@@ -120,7 +126,10 @@ def _dataset_urls(*entries: dict) -> dict[str, str]:
 
 def get_config(config_path: Path = CONFIG_PATH) -> ConfigModel:
     """Load the config once and return it as a ConfigModel."""
-    config = _load_config(config_path)
+    config: dict = _engineer_urns(_load_json_config(config_path))
+
+    # Validate the config
+    validate_config(config)
 
     schools: dict[int, str] = config["schools"]
     project_root = Path(__file__).resolve().parents[2]
@@ -145,6 +154,17 @@ def get_config(config_path: Path = CONFIG_PATH) -> ConfigModel:
         charts_dir=project_root / "charts"
     )
 
+
+def get_catchment_distances(config_path: Path = CATCHMENT_DISTANCES_PATH) -> dict:
+    """Load the catchment distances and return as a dictionary."""
+    catchment_distances: dict = _load_json_config(config_path)
+    return catchment_distances
+
+
+def get_school_addresses(config_path: Path = SCHOOL_ADDRESSES_PATH) -> dict:
+    """Load the school locations and return as a dictionary."""
+    school_addresses: dict = _load_json_config(config_path)
+    return school_addresses
 
 def main(config_path: Path = CONFIG_PATH) -> ConfigModel:
     return get_config(config_path)

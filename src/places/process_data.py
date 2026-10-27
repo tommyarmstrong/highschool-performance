@@ -138,13 +138,16 @@ class DfECensusProcessor:
             label = " ".join(
                 link.get_text(" ", strip=True).lower().split()
             )
+            href = link.get("href")
+            if not isinstance(href, str):
+                continue
 
             if (
                 "school level underlying data" in label
                 and "class sizes" not in label
                 and "download" in label
             ):
-                return urljoin(page_url, link["href"])
+                return urljoin(page_url, href)
 
         raise ValueError(
             f"School-level CSV link not found for {year}: {page_url}"

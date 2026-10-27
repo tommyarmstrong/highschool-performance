@@ -13,3 +13,8 @@ dev = ["pytest"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.pyright]
+venvPath = "/opt/anaconda3/envs"
+venv = "highschool-performance"
+extraPaths = ["src"]

@@ -1,0 +1,38 @@
+{
+    "2024": {
+        "Alexandra Park": 0.5267,
+        "Fortismere": 1.1532,
+        "Gladesmore": 1.2563,
+        "Greig": 2.9270,
+        "Heartlands": 1.5060,
+        "Highgate Wood": 0.9631,
+        "Hornsey": null,
+        "Park View": null,
+        "Skinners'": null,
+        "St Thomas More": null
+    },
+    "2025": {
+        "Alexandra Park": 0.4991,
+        "Fortismere": 1.1404,
+        "Gladesmore": 5.2496,
+        "Greig": 2.5562,
+        "Heartlands": 1.0298,
+        "Highgate Wood": 1.0224,
+        "Hornsey": null,
+        "Park View": null,
+        "Skinners'": null,
+        "St Thomas More": null
+    },
+    "2026": {
+        "Alexandra Park": 0.477,
+        "Fortismere": 1.226,
+        "Gladesmore": null,
+        "Greig": 1.961,
+        "Heartlands": 1.190,
+        "Highgate Wood": 1.167,
+        "Hornsey": null,
+        "Park View": null,
+        "Skinners'": null,
+        "St Thomas More": 0.219
+    }
+}
