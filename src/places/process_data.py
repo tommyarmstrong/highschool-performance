@@ -352,7 +352,7 @@ class PlacesProcessor:
         df = applications_df.merge(
             census_df,
             on=["time_period", "school"],
-            how="inner"
+            how="left"
         )
 
         return df
@@ -418,7 +418,12 @@ class PlacesProcessor:
         df = self._merge_data()
         if df is None:
             return None
-        return self._engineer_columns(df)
+        df = self._engineer_columns(df)
+
+        merged_path = self.config.processed_data_dir / "places_data_merged.pkl"
+        df.to_pickle(merged_path)
+        logger.info(f"Processed places data saved to {merged_path}")
+        return df
         
 
 def get_applications_data() -> pd.DataFrame | None:
@@ -447,6 +452,6 @@ def get_places_data() -> pd.DataFrame | None:
         logger.error("No places data were found")
         return None
 
-    return None
+    return places_df
 
 

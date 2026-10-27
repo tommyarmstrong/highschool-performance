@@ -15,6 +15,15 @@ charts/*
 maps/*
 !charts/.gitkeep
 !maps/.gitkeep
+!charts/a8_ks2_scatter.png
+!charts/p8_ks2_scatter.png
+!charts/p8_ks2_band_table.png
+!charts/ks2_band_distribution.png
+!charts/p8_by_prior_attainment.png
+!charts/a8_band_distribution.png
+!charts/p8_by_sex.png
+!charts/all_schools_catchments_2026.png
+!charts/Greig_catchments.png
 
 # Local editor files
 highschool-performance.code-workspace

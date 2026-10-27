@@ -22,8 +22,7 @@ def _finish_plot(fig: Figure, file_name: str, save_png: bool) -> None:
     plt.show()
 
 
-(data_set_name, _), = config.applications_urls.items()
-processed_data_path = config.processed_data_dir / f"{data_set_name}_proc.pkl"
+processed_data_path = config.processed_data_dir / "places_data_merged.pkl"
 
 def plot_applications(
     df: pd.DataFrame,
@@ -726,3 +725,8 @@ def plot_places_data(save_png: bool = True) -> None:
     plot_applications_and_rolls(df)
     plot_roll_vs_offers(df)
     plot_offers_vs_roll(df)
+
+    schools = ["Greig", "Heartlands", "Hgihgate Wood", "Parklands"]
+    plot_applications_and_rolls(df, schools=schools)
+    plot_roll_vs_offers(df, schools=schools)
+    plot_offers_vs_roll(df, schools=schools)
