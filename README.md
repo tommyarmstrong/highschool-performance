@@ -2,6 +2,23 @@
 
 Analysis of English secondary school performance and catchments, using Department for Education data.
 
+## Setup
+
+The conda environment is named `highschool-performance` and is defined in `environment.yml` (conda-forge, Python >= 3.13).
+
+```bash
+conda env create -f environment.yml
+conda activate highschool-performance
+```
+
+If the environment already exists, update it:
+
+```bash
+conda env update -f environment.yml
+```
+
+Saving Folium catchment maps to PNG uses headless Chrome via Selenium. The helper looks for `chromium`, `chromium-browser`, or `google-chrome` on PATH, and for the macOS app bundles at `/Applications/Google Chrome.app` and `/Applications/Chromium.app` (and the same paths under the user Applications folder). conda-forge does not publish a `chromium` package for osx-64. On macOS, Google Chrome or Chromium installed as a normal app is enough. Selenium downloads a matching ChromeDriver itself.
+
 ## Run
 
 From `src/`:
@@ -24,7 +41,10 @@ Each pipeline can also be run on its own:
 ```bash
 python -m performance.run_performance
 python -m places.run_places
+python -m catchment.run_catchment
 ```
+
+The catchment pipeline loads school coordinates and catchment distances from config, then writes catchment charts under `charts/`.
 
 Tables are saved under `data/` and charts under `charts/`.
 
