@@ -702,18 +702,27 @@ def plot_offers_vs_roll(
 
 
 def plot_places_data(save_png: bool = True) -> None:
-    """Plot the performance data."""
+    """Plot the places data."""
 
     # 1. Load data
     df: pd.DataFrame = read_dataframe(processed_data_path)
 
     # 2. Plot applications data
-    plot_applications(df, metric="First Choice Applications", save_png=save_png)
-    plot_applications(df, metric="Total Applications", save_png=save_png)
-    plot_applications(df, metric="First Choice Offers", save_png=save_png)
-    plot_applications(df, metric="Total Offers", save_png=save_png)
-    plot_applications(df, metric="First Choice Share (%)", save_png=save_png)
-    plot_applications(df, metric="Non-Preference Allocations", save_png=save_png)
-    plot_applications(df, metric="Non-Preference Allocations (%)", save_png=save_png)
+    plot_applications(df, metric="First Choice Applications")
+    plot_applications(df, metric="Total Applications")
+    plot_applications(df, metric="First Choice Offers")
+    plot_applications(df, metric="Total Offers")
+    plot_applications(df, metric="First Choice Offer Rate (%)")
+    plot_applications(df, metric="First Choice Share (%)")
+    plot_applications(df, metric="Non-Preference Allocations")
+    plot_applications(df, metric="Non-Preference Allocations (%)")
+    plot_stacked_applications(df)
+    plot_applications_vs_offers(df)
+    plot_first_choice_demand(df)
+    plot_non_preference_allocations(df)
+    plot_first_choice_offer_rate(df)
 
     # 3. Plot census data
+    plot_applications_and_rolls(df)
+    plot_roll_vs_offers(df)
+    plot_offers_vs_roll(df)
