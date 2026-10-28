@@ -27,7 +27,7 @@
                 {
                     "runs": 
                     [
-                        {"text": "The report is licensed under the "},
+                        {"text": "The project is licensed under the "},
                         {
                             "text": "MIT License",
                             "hyperlink": "https://opensource.org/licenses/MIT"

@@ -78,7 +78,7 @@ class SlideDefinition(TypedDict):
     shapes: list[SlideShape]
 
 
-DEFAULT_DECK = Path("decks") / "report.json"
+DEFAULT_DECK = Path("src") / "decks_layout" / "report.json"
 _POSITION_KEYS = ("left", "top", "width", "height")
 
 PICTURE_BOTTOM_GAP_INCHES = 0.5

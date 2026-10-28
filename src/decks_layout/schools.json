@@ -18,7 +18,8 @@
                 {"bullet": true, "runs": [{"text": "Highgate Wood"}]},
                 {"bullet": true, "runs": [{"text": "Hornsey School for Girls"}]},
                 {"bullet": true, "runs": [{"text": "Park View"}]},
-                {"bullet": true, "runs": [{"text": "Skinners"}]}
+                {"bullet": true, "runs": [{"text": "Skinners"}]},
+                {"bullet": true, "runs": [{"text": "St Thomas More"}]}
             ]
         }
     ]
