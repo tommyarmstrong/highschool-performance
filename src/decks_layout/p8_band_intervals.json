@@ -1,0 +1,23 @@
+{
+    "layout": "TITLE_ONLY",
+    "shapes": [
+        {
+            "type": "title",
+            "text": "Performance 8 Band Definitions"
+        },
+        {
+            "type": "table",
+            "header": true,
+            "size": "14",
+            "widths": [1.5, 1.5, 1.5, 1.5],
+            "rows": [
+                ["Performance 8", "Confidence Intervals", "Band", "Percent of Schools"],
+                ["Above 0.5", " All above zero", "Well above average", "16%"],
+                ["Above 0.0", " All above zero", "Above average", "18%"],
+                ["Above or below 0.0", "Crossing zero", "Average", "33%"],
+                ["Below 0.0", " All below zero", "Below average", "17%"],
+                ["Below -0.5", " All below zero", "Well below average", "16%"]
+            ]
+        }
+    ]
+}

@@ -5,14 +5,16 @@ from typing import Literal, NotRequired, TypedDict, cast
 
 from PIL import Image
 from pptx import Presentation
+from pptx.dml.color import RGBColor
 from pptx.enum.shapes import PP_PLACEHOLDER
-from pptx.enum.text import MSO_AUTO_SIZE
+from pptx.enum.text import MSO_ANCHOR, MSO_AUTO_SIZE, PP_ALIGN
 from pptx.presentation import Presentation as PresentationDocument
 from pptx.shapes.placeholder import SlidePlaceholder
 from pptx.oxml.ns import qn
 from pptx.oxml.text import CT_TextParagraphProperties
 from pptx.oxml.xmlchemy import BaseOxmlElement, OxmlElement
 from pptx.slide import Slide, SlideLayout
+from pptx.table import Table, _Cell
 from pptx.text.text import TextFrame, _Paragraph
 from pptx.util import Emu, Inches, Length, Pt
 
@@ -60,7 +62,19 @@ class PictureShape(TypedDict):
     height: NotRequired[float]
 
 
-SlideShape = TitleShape | TextBoxShape | PictureShape
+class TableShape(TypedDict):
+    type: Literal["table"]
+    rows: list[list[str]]
+    header: bool
+    size: NotRequired[float]
+    widths: NotRequired[list[float]]
+    left: NotRequired[float]
+    top: NotRequired[float]
+    width: NotRequired[float]
+    height: NotRequired[float]
+
+
+SlideShape = TitleShape | TextBoxShape | PictureShape | TableShape
 
 
 class _Positioned(TypedDict):
@@ -83,6 +97,11 @@ DEFAULT_DECK = DECKS_DIR / "full_report.json"
 _POSITION_KEYS = ("left", "top", "width", "height")
 
 PICTURE_BOTTOM_GAP_INCHES = 0.5
+TABLE_ROW_HEIGHT_INCHES = 0.32
+TABLE_TITLE_GAP_INCHES = 0.5
+_TEMPLATE_TABLE_STYLE = "{4C3C2611-4C71-4FC5-86AE-919BDF0F9419}"
+_HEADER_FILL = RGBColor(0xF2, 0xF2, 0xF2)
+_CELL_TEXT = RGBColor(0x00, 0x00, 0x00)
 
 
 def load_slides(path: Path) -> list[SlideDefinition]:
@@ -195,7 +214,7 @@ def _add_shapes(
     slide_height: Length,
     spacing: tuple[int, int] | None,
 ) -> None:
-    """Add title, text box, and picture shapes in definition order."""
+    """Add title, text box, picture, and table shapes in definition order."""
     body_placeholders = [
         cast(SlidePlaceholder, shape)
         for shape in slide.placeholders
@@ -206,8 +225,10 @@ def _add_shapes(
             _add_title(slide, shape)
         elif shape["type"] == "text_box":
             _add_text_box(slide, shape, body_placeholders, spacing)
-        else:
+        elif shape["type"] == "picture":
             _add_picture(slide, shape, charts_dir, slide_height)
+        else:
+            _add_table(slide, shape, slide_height)
 
 
 def _add_title(slide: Slide, shape: TitleShape) -> None:
@@ -425,7 +446,7 @@ def _add_picture(
 
 
 def _inches_box(
-    shape: TextBoxShape | PictureShape,
+    shape: TextBoxShape | PictureShape | TableShape,
     kind: str,
 ) -> tuple[Length, Length, Length, Length] | None:
     """Return a positioned box, or None when the shape leaves placement to the layout."""
@@ -445,21 +466,30 @@ def _inches_box(
     )
 
 
-def _fit_picture_below_title(slide: Slide, image_path: Path, slide_height: Length) -> None:
-    """Fit a chart in the area below the slide title, keeping its aspect ratio."""
+def _content_box(
+    slide: Slide,
+    slide_height: Length,
+    title_gap: float = 0.05,
+) -> tuple[Length, Length, Length, Length]:
+    """Return the area under the title and above the footer gap."""
     title = slide.shapes.title
     if title is None:
-        raise ValueError("Cannot place a picture without a position on a slide that has no title")
+        raise ValueError("Cannot place a shape without a position on a slide that has no title")
 
     box_left = title.left
-    box_top = title.top + title.height + Inches(0.05)
+    box_top = Emu(title.top + title.height + Inches(title_gap))
     box_width = title.width
-    bottom_gap = Inches(PICTURE_BOTTOM_GAP_INCHES)
-    box_height = slide_height - box_top - bottom_gap
+    box_height = Emu(slide_height - box_top - Inches(PICTURE_BOTTOM_GAP_INCHES))
     if box_height <= 0:
         raise ValueError(
-            f"Picture bottom gap ({PICTURE_BOTTOM_GAP_INCHES} in) leaves no room under the title"
+            f"Bottom gap ({PICTURE_BOTTOM_GAP_INCHES} in) leaves no room under the title"
         )
+    return box_left, box_top, box_width, box_height
+
+
+def _fit_picture_below_title(slide: Slide, image_path: Path, slide_height: Length) -> None:
+    """Fit a chart in the area below the slide title, keeping its aspect ratio."""
+    box_left, box_top, box_width, box_height = _content_box(slide, slide_height)
 
     with Image.open(image_path) as image:
         image_width, image_height = image.size
@@ -475,6 +505,81 @@ def _fit_picture_below_title(slide: Slide, image_path: Path, slide_height: Lengt
     left = Emu(box_left + (box_width - width) // 2)
     top = Emu(box_top + (box_height - height) // 2)
     slide.shapes.add_picture(str(image_path), left, top, width, height)
+
+
+def _add_table(slide: Slide, shape: TableShape, slide_height: Length) -> None:
+    """Place a table below the title, or in an explicit box."""
+    rows = shape["rows"]
+    row_count = len(rows)
+    column_count = len(rows[0])
+    position = _inches_box(shape, "Table")
+    if position is None:
+        left, top, width, available = _content_box(
+            slide, slide_height, TABLE_TITLE_GAP_INCHES
+        )
+        height = min(Inches(TABLE_ROW_HEIGHT_INCHES * row_count), available)
+    else:
+        left, top, width, height = position
+
+    table = slide.shapes.add_table(row_count, column_count, left, top, width, height).table
+    _use_template_table_style(table)
+    table.first_row = shape["header"]
+    if "widths" in shape:
+        _set_column_widths(table, width, shape["widths"])
+
+    for row_index, row in enumerate(rows):
+        for column_index, value in enumerate(row):
+            _write_cell(
+                table.cell(row_index, column_index),
+                value,
+                header=shape["header"] and row_index == 0,
+                size=shape["size"] if "size" in shape else None,
+            )
+
+
+def _use_template_table_style(table: Table) -> None:
+    """Point the table at the template style instead of python-pptx's default."""
+    tbl_pr = table._tbl.tblPr
+    if tbl_pr is None:
+        return
+    style_id = tbl_pr.find(qn("a:tableStyleId"))
+    if style_id is not None:
+        style_id.text = _TEMPLATE_TABLE_STYLE
+
+
+def _set_column_widths(table: Table, width: Length, weights: list[float]) -> None:
+    """Apply relative column widths so they sum to the table width."""
+    columns = table.columns
+    total = sum(weights)
+    used = 0
+    table_width = int(width)
+    for index, weight in enumerate(weights):
+        if index == len(weights) - 1:
+            column_width = table_width - used
+        else:
+            column_width = int(table_width * weight / total)
+            used += column_width
+        columns[index].width = Emu(column_width)
+
+
+def _write_cell(cell: _Cell, value: str, header: bool, size: float | None) -> None:
+    """Write one cell, bolding and shading a header."""
+    cell.text = value
+    cell.vertical_anchor = MSO_ANCHOR.MIDDLE
+    text_frame = cell.text_frame
+    text_frame.word_wrap = True
+    paragraph = text_frame.paragraphs[0]
+    paragraph.alignment = PP_ALIGN.LEFT
+    if not paragraph.runs:
+        return
+    run = paragraph.runs[0]
+    run.font.color.rgb = _CELL_TEXT
+    if size is not None:
+        run.font.size = Pt(size)
+    if header:
+        run.font.bold = True
+        cell.fill.solid()
+        cell.fill.fore_color.rgb = _HEADER_FILL
 
 
 def _reorder_slides(prs: PresentationDocument, order: list[Slide]) -> None:
@@ -572,7 +677,7 @@ def _slide_number(value: object, label: str) -> int:
 
 
 def _parse_shape(item: object, entry: int, index: int, path: Path) -> SlideShape:
-    """Return one validated title, text box, or picture."""
+    """Return one validated title, text box, picture, or table."""
     label = f"{path.name} entry {entry} shape {index}"
     fields = _object(item, label)
     shape_type = fields.get("type")
@@ -604,10 +709,33 @@ def _parse_shape(item: object, entry: int, index: int, path: Path) -> SlideShape
         picture: PictureShape = {"type": "picture", "file": file_name}
         _apply_position(picture, fields, label)
         return picture
-    raise ValueError(f"{label} type must be 'title', 'text_box', or 'picture'")
+    if shape_type == "table":
+        _check_keys(
+            fields,
+            {"type", "rows"},
+            set(_POSITION_KEYS) | {"header", "size", "widths"},
+            label,
+        )
+        rows = _parse_table_rows(fields["rows"], label)
+        table: TableShape = {"type": "table", "rows": rows, "header": True}
+        if "header" in fields:
+            if not isinstance(fields["header"], bool):
+                raise ValueError(f"{label} header must be true or false")
+            table["header"] = fields["header"]
+        if "size" in fields:
+            table["size"] = _font_size(fields["size"], label)
+        if "widths" in fields:
+            table["widths"] = _parse_widths(fields["widths"], len(rows[0]), label)
+        _apply_position(table, fields, label)
+        return table
+    raise ValueError(f"{label} type must be 'title', 'text_box', 'picture', or 'table'")
 
 
-def _apply_position(shape: TextBoxShape | PictureShape, fields: dict[str, object], label: str) -> None:
+def _apply_position(
+    shape: TextBoxShape | PictureShape | TableShape,
+    fields: dict[str, object],
+    label: str,
+) -> None:
     """Copy a complete box onto a shape. Leave the shape unchanged when it has no box."""
     present = [key for key in _POSITION_KEYS if key in fields]
     if not present:
@@ -639,6 +767,48 @@ def _font_size(value: object, label: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)) or value <= 0:
         raise ValueError(f"{label} size must be a font size in points")
     return float(value)
+
+
+def _parse_table_rows(value: object, label: str) -> list[list[str]]:
+    """Return table rows, each with the same number of string cells."""
+    if not isinstance(value, list) or not value:
+        raise ValueError(f"{label} rows must be a non-empty list")
+
+    rows: list[list[str]] = []
+    column_count: int | None = None
+    for index, item in enumerate(value, start=1):
+        row_label = f"{label} row {index}"
+        if not isinstance(item, list) or not item:
+            raise ValueError(f"{row_label} must be a non-empty list of strings")
+        cells = [
+            _cell_text(cell, f"{row_label} column {column}")
+            for column, cell in enumerate(item, start=1)
+        ]
+        if column_count is None:
+            column_count = len(cells)
+        elif len(cells) != column_count:
+            raise ValueError(f"{row_label} must have {column_count} cells")
+        rows.append(cells)
+    return rows
+
+
+def _cell_text(value: object, label: str) -> str:
+    """Return cell text. An empty string is a blank cell."""
+    if not isinstance(value, str):
+        raise ValueError(f"{label} must be a string")
+    return value
+
+
+def _parse_widths(value: object, column_count: int, label: str) -> list[float]:
+    """Return one positive relative width per column."""
+    if not isinstance(value, list) or len(value) != column_count:
+        raise ValueError(f"{label} widths must list one positive number per column")
+    widths: list[float] = []
+    for index, item in enumerate(value, start=1):
+        if isinstance(item, bool) or not isinstance(item, (int, float)) or item <= 0:
+            raise ValueError(f"{label} width {index} must be a positive number")
+        widths.append(float(item))
+    return widths
 
 
 def _text(value: object, label: str) -> str:

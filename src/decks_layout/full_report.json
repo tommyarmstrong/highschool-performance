@@ -24,6 +24,10 @@
         ]
     },
     {
+        "number": 4,
+        "include": "p8_band_intervals.json"
+    },
+    {
         "number": 5,
         "layout": "TITLE_ONLY",
         "shapes": [
