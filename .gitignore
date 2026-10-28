@@ -12,9 +12,9 @@ data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 charts/*
-report/*
+reports/*
 !charts/.gitkeep
-!report/.gitkeep
+!reports/.gitkeep
 !charts/a8_ks2_scatter.png
 !charts/p8_ks2_scatter.png
 !charts/p8_ks2_band_table.png

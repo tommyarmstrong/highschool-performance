@@ -78,7 +78,8 @@ class SlideDefinition(TypedDict):
     shapes: list[SlideShape]
 
 
-DEFAULT_DECK = Path("src") / "decks_layout" / "report.json"
+DECKS_DIR = Path("src") / "decks_layout"
+DEFAULT_DECK = DECKS_DIR / "full_report.json"
 _POSITION_KEYS = ("left", "top", "width", "height")
 
 PICTURE_BOTTOM_GAP_INCHES = 0.5
@@ -740,13 +741,26 @@ def _check_keys(
 
 
 def _resolve_deck(deck: str | Path | None, project_root: Path) -> Path:
-    """Resolve a deck path from the working directory, then from the project root."""
+    """Resolve a deck from the working directory, the project root, or the decks folder.
+
+    A bare name such as ``full_report`` is read from ``src/decks_layout``.
+    """
     if deck is None:
         return project_root / DEFAULT_DECK
+
     path = Path(deck)
-    if path.is_absolute() or path.exists():
+    if path.suffix == "":
+        path = path.with_suffix(".json")
+    if path.is_absolute():
         return path
-    return project_root / path
+
+    candidates = [path, project_root / path]
+    if path.parent == Path("."):
+        candidates.append(project_root / DECKS_DIR / path.name)
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return candidates[-1]
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:

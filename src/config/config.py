@@ -180,7 +180,7 @@ def get_config(
         raw_data_dir=project_root / "data" / "raw",
         processed_data_dir=project_root / "data" / "processed",
         charts_dir=project_root / "charts",
-        report_dir=project_root / "report",
+        report_dir=project_root / "reports",
         templates_dir=project_root / "templates"
     )
 
