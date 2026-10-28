@@ -1,0 +1,25 @@
+{
+    "layout": "TITLE_AND_BODY",
+    "shapes": [
+        {
+            "type": "title",
+            "text": "Schools"
+        },
+        {
+            "type": "text_box",
+            "size": "14",
+            "paragraphs": [
+                {"text": "The following schools are included in the analysis: ", "size": "16"},
+                {"bullet": true, "runs": [{"text": "Alexandra Park"}]},
+                {"bullet": true, "runs": [{"text": "Fortismere"}]},
+                {"bullet": true, "runs": [{"text": "Gladesmore"}]},
+                {"bullet": true, "runs": [{"text": "Greig City Academy"}]},
+                {"bullet": true, "runs": [{"text": "Heartlands"}]},
+                {"bullet": true, "runs": [{"text": "Highgate Wood"}]},
+                {"bullet": true, "runs": [{"text": "Hornsey School for Girls"}]},
+                {"bullet": true, "runs": [{"text": "Park View"}]},
+                {"bullet": true, "runs": [{"text": "Skinners"}]}
+            ]
+        }
+    ]
+}

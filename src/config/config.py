@@ -151,7 +151,9 @@ def get_config(config_path: Path = CONFIG_PATH) -> ConfigModel:
         project_root=project_root,
         raw_data_dir=project_root / "data" / "raw",
         processed_data_dir=project_root / "data" / "processed",
-        charts_dir=project_root / "charts"
+        charts_dir=project_root / "charts",
+        report_dir=project_root / "report",
+        templates_dir=project_root / "templates"
     )
 
 

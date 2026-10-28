@@ -16,3 +16,5 @@ class ConfigModel:
     raw_data_dir: Path
     processed_data_dir: Path
     charts_dir: Path
+    report_dir: Path
+    templates_dir: Path

@@ -1,0 +1,61 @@
+{
+    "layout": "TITLE_AND_BODY",
+    "shapes": [
+        {
+            "type": "title",
+            "text": "Data Sources"
+        },
+        {
+            "type": "text_box",
+            "size": "14",
+            "paragraphs": [
+                {
+                    "text": "Figures come from published Department for Education statistics, except catchment distances.", 
+                    "size": "16"
+                },
+                {
+                    "bullet": true, 
+                    "runs": 
+                    [
+                        {"text": "GCSE results: ", "bold": true},
+                        {"text": "Key stage 4 school results: Attainment 8 and Progress 8, overall and by prior attainment and sex (2022/23–2025/26)."}
+                        
+                    ]
+                },
+                {
+                    "bullet": true, 
+                    "runs": 
+                    [
+                        {"text": "Prior attainment: ", "bold": true},
+                        {"text": "Key stage 2 scores for the same pupils, used as the starting point for Progress 8."}
+                    ]
+                },
+                {
+                    "bullet": true, 
+                    "runs": 
+                    [
+                        {"text": "Applications and offers: ", "bold": true},       
+                        {"text": "Applications and offers. Secondary preferences and places offered, including first-choice offers and pupils allocated a school they did not choose."}
+                    ]       
+                },
+                {
+                    "bullet": true, 
+                    "runs": 
+                    [
+                        {"text": "Year 7 numbers: ", "bold": true},       
+                        {"text": "School census (Schools, pupils and their characteristics): Year 7 roll by sex, 2020/21–2025/26."}
+                    ]      
+
+                },
+                {
+                    "bullet": true, 
+                    "runs": 
+                    [
+                        {"text": "Catchment distances", "bold": true},     
+                        {"text": "Catchment distances. Last-place cut-offs published by the local authority, mapped from each school’s address."}
+                    ]       
+                }
+            ]
+        }
+    ]
+}

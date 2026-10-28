@@ -1,0 +1,330 @@
+[
+    {
+        "number": 1,
+        "layout": "TITLE",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Haringey Schools"
+            }
+        ]
+    },
+    {
+        "number": 2,
+        "include": "schools.json"
+    },
+    {
+        "number": 3,
+        "layout": "SECTION_HEADER",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Performance"
+            }
+        ]
+    },
+    {
+        "number": 5,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Attainment 8 scores, 2023 - 2026"
+            }
+        ]
+    },
+    {
+        "number": 6,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Attainment 8 (2024) strongly correlated with Key Stage 2 (2019) scores"
+            },
+            {
+                "type": "picture",
+                "file": "a8_ks2_scatter.png"
+            }
+        ]
+    },
+    {
+        "number": 7,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Progress 8 (2024) much less correlated with Key Stage 2 (2019)"
+            },
+            {
+                "type": "picture",
+                "file": "p8_ks2_scatter.png"
+            }
+        ]
+    },
+    {
+        "number": 8,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "DfE Groups KS2 Scores into Low, Middle and High Bands"
+            },
+            {
+                "type": "picture",
+                "file": "ks2_band_distribution.png"
+            }
+        ]
+    },
+    {
+        "number": 9,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Attainment 8, adjusted for prior KS2, was more aligned"
+            },
+            {
+                "type": "picture",
+                "file": "a8_band_distribution.png"
+            }
+        ]
+    },
+    {
+        "number": 10,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Performance 8, adjusted for prior KS2, with confidence intervals"
+            },
+            {
+                "type": "picture",
+                "file": "p8_by_prior_attainment.png"
+            }
+        ]
+    },
+    {
+        "number": 11,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Performance 8, adjusted for prior KS2, with confidence intervals"
+            },
+            {
+                "type": "picture",
+                "file": "p8_all_years_by_prior_attainment.png"
+            }
+        ]
+    },
+    {
+        "number": 12,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Schools with statistically significant P8 impact (2024)"
+            },
+            {
+                "type": "picture",
+                "file": "p8_ks2_band_table.png"
+            }
+        ]
+    },
+    {
+        "number": 13,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Attainment 8 by sex"
+            },
+            {
+                "type": "picture",
+                "file": "a8_by_sex_AP-F-G.png"
+            }
+        ]
+    },
+    {
+        "number": 14,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Attainment 8 by sex"
+            },
+            {
+                "type": "picture",
+                "file": "a8_by_sex_G-H-HW.png"
+            }
+        ]
+    },
+    {
+        "number": 15,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Attainment 8 by sex"
+            },
+            {
+                "type": "picture",
+                "file": "a8_by_sex_PV-S-STM.png"
+            }
+        ]
+    },
+    {
+        "number": 16,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Progress 8 by sex"
+            },
+            {
+                "type": "picture",
+                "file": "p8_by_sex.png"
+            }
+        ]
+    },
+    {
+        "number": 17,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Boys Progress 8 with Confidence Intervals (95%)"
+            },
+            {
+                "type": "picture",
+                "file": "p8_boys.png"
+            }
+        ]
+    },
+    {
+        "number": 18,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Girls Progress 8 with Confidence Intervals (95%)"
+            },
+            {
+                "type": "picture",
+                "file": "p8_girls.png"
+            }
+        ]
+    },
+    {
+        "number": 19,
+        "layout": "SECTION_HEADER",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Applications"
+            }
+        ]
+    },
+    {
+        "number": 20,
+        "layout": "SECTION_HEADER",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Catchment Areas"
+            }
+        ]
+    },
+    {
+        "number": 21,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Catchment Areas"
+            },
+            {
+                "type": "picture",
+                "file": "all_schools_catchments_2026.png"
+            }
+        ]
+    },
+    {
+        "number": 22,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Alexandra Park Catchment"
+            },
+            {
+                "type": "picture",
+                "file": "Alexandra_Park_catchments.png"
+            }
+        ]
+    },
+    {
+        "number": 23,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Fortismere Catchment"
+            },
+            {
+                "type": "picture",
+                "file": "Fortismere_catchments.png"
+            }
+        ]
+    },
+    {
+        "number": 24,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Greig Catchment"
+            },
+            {
+                "type": "picture",
+                "file": "Greig_catchments.png"
+            }
+        ]
+    },
+    {
+        "number": 25,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Heartlands Catchment"
+            },
+            {
+                "type": "picture",
+                "file": "Heartlands_catchments.png"
+            }
+        ]
+    },
+    {
+        "number": 26,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Highgate Wood Catchment"
+            },
+            {
+                "type": "picture",
+                "file": "Highgate_Wood_catchments.png"
+            }
+        ]
+    },
+    {
+        "number": 27,
+        "include": "data_sources.json"
+    },
+    {
+        "number": 28,
+        "include": "project_license.json"
+    }    
+]

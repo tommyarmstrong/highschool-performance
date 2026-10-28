@@ -12,9 +12,9 @@ data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 charts/*
-maps/*
+report/*
 !charts/.gitkeep
-!maps/.gitkeep
+!report/.gitkeep
 !charts/a8_ks2_scatter.png
 !charts/p8_ks2_scatter.png
 !charts/p8_ks2_band_table.png
@@ -27,3 +27,7 @@ maps/*
 
 # Local editor files
 highschool-performance.code-workspace
+
+# OS files
+.DS_Store
+templates/.DS_Store
