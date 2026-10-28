@@ -81,6 +81,8 @@ class SlideDefinition(TypedDict):
 DEFAULT_DECK = Path("decks") / "report.json"
 _POSITION_KEYS = ("left", "top", "width", "height")
 
+PICTURE_BOTTOM_GAP_INCHES = 0.5
+
 
 def load_slides(path: Path) -> list[SlideDefinition]:
     """Load a slide deck from JSON and check that each slide can be built."""
@@ -449,9 +451,14 @@ def _fit_picture_below_title(slide: Slide, image_path: Path, slide_height: Lengt
         raise ValueError("Cannot place a picture without a position on a slide that has no title")
 
     box_left = title.left
-    box_top = title.top + title.height + Inches(0.15)
+    box_top = title.top + title.height + Inches(0.05)
     box_width = title.width
-    box_height = slide_height - box_top - title.left
+    bottom_gap = Inches(PICTURE_BOTTOM_GAP_INCHES)
+    box_height = slide_height - box_top - bottom_gap
+    if box_height <= 0:
+        raise ValueError(
+            f"Picture bottom gap ({PICTURE_BOTTOM_GAP_INCHES} in) leaves no room under the title"
+        )
 
     with Image.open(image_path) as image:
         image_width, image_height = image.size

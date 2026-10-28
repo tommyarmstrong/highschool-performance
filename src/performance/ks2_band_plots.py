@@ -93,12 +93,7 @@ def plot_a8_p8_trends(df: pd.DataFrame, schools: list[str] | None = None, save_p
                 label="National reference",
             )
 
-        ax.set_title(
-            f"{title} by School",
-            fontsize=16,
-            fontweight="bold",
-            pad=15,
-        )
+        ax.set_title(f"{title} by School")
 
         ax.set_xlabel("GCSE examination year")
         ax.set_ylabel(ylabel)
