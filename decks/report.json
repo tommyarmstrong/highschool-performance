@@ -29,7 +29,11 @@
         "shapes": [
             {
                 "type": "title",
-                "text": "Attainment 8 scores, 2023 - 2026"
+                "text": "Attainment 8 trends 2023 - 2026"
+            },
+            {
+                "type": "picture",
+                "file": "attainment8_trends.png"
             }
         ]
     },

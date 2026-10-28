@@ -6,6 +6,7 @@ from pathlib import Path
 class ConfigModel:
     schools_urns: dict[int, str]
     schools_names: list[str]
+    school_addresses: dict[str, str]
     years: list[int]
     institutional_urls: dict[str, str]
     ks2_information_urls: dict[str, str]

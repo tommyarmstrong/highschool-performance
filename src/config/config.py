@@ -9,8 +9,8 @@ CatchmentDistances = dict[int, dict[str, float | None]]
 SchoolCoords = dict[str, tuple[float, float]]
 
 CONFIG_PATH = Path(__file__).resolve().parent / "config.json"
+SCHOOLS_PATH = Path(__file__).resolve().parent / "schools.json"
 CATCHMENT_DISTANCES_PATH = Path(__file__).resolve().parent / "catchment_distances.json"
-SCHOOL_ADDRESSES_PATH = Path(__file__).resolve().parent / "school_addresses.json"
 
 PERFORMANCE_DATA_COLUMNS = [
     "time_period",
@@ -72,14 +72,6 @@ APPLICATIONS_COLUMNS = {
 def validate_config(config: dict) -> None:
     """Validate the config file."""
 
-    # Validate that the schools are a dictionary
-    if not isinstance(config["schools"], dict):
-        raise ValueError("Schools must be a dictionary.")
-
-    # Validate that the schools are not empty
-    if not config["schools"]:
-        raise ValueError("Schools must not be empty.")
-
     # Validate that the years are a list of integers
     years = config["years"]
     if not isinstance(years, list) or not all(isinstance(year, int) for year in years):
@@ -104,11 +96,37 @@ def _load_json_config(config_path: Path = CONFIG_PATH) -> dict:
     return config
 
 
-def _engineer_urns(config: dict) -> dict[int | str, str]:
-    """Convert the URNs and years to integers."""
-    config["schools"] = {int(urn): name for urn, name in config["schools"].items()}
+def _parse_years(config: dict) -> dict:
+    """Convert the years to integers."""
     config["years"] = [int(year) for year in config["years"]]
     return config
+
+
+def _load_schools(schools_path: Path = SCHOOLS_PATH) -> dict[int, dict[str, str]]:
+    """Load schools as URN to name and address."""
+    raw_schools: dict = _load_json_config(schools_path)
+    if not isinstance(raw_schools, dict) or not raw_schools:
+        raise ValueError("Schools must be a non-empty dictionary.")
+
+    schools: dict[int, dict[str, str]] = {}
+    names: set[str] = set()
+    for urn, school in raw_schools.items():
+        if not isinstance(school, dict):
+            raise ValueError(f"School {urn} must be an object with a name and address.")
+
+        name = school.get("name")
+        address = school.get("address")
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError(f"School {urn} must have a name.")
+        if not isinstance(address, str) or not address.strip():
+            raise ValueError(f"School {urn} must have an address.")
+        if name in names:
+            raise ValueError(f"Duplicate school name: {name}.")
+
+        names.add(name)
+        schools[int(urn)] = {"name": name, "address": address}
+
+    return schools
 
 
 def _build_url(url_data: dict) -> str:
@@ -124,14 +142,23 @@ def _dataset_urls(*entries: dict) -> dict[str, str]:
     return {entry["data-set"]: _build_url(entry) for entry in entries}
 
 
-def get_config(config_path: Path = CONFIG_PATH) -> ConfigModel:
+def get_config(
+    config_path: Path = CONFIG_PATH,
+    schools_path: Path = SCHOOLS_PATH,
+) -> ConfigModel:
     """Load the config once and return it as a ConfigModel."""
-    config: dict = _engineer_urns(_load_json_config(config_path))
+    config: dict = _parse_years(_load_json_config(config_path))
 
     # Validate the config
     validate_config(config)
 
-    schools: dict[int, str] = config["schools"]
+    schools: dict[int, dict[str, str]] = _load_schools(schools_path)
+    schools_urns: dict[int, str] = {
+        urn: school["name"] for urn, school in schools.items()
+    }
+    school_addresses: dict[str, str] = {
+        school["name"]: school["address"] for school in schools.values()
+    }
     project_root = Path(__file__).resolve().parents[2]
     institutional_config = config["data"]["dfe"]["institution_level"]
     ks2_information_config = config["data"]["dfe"]["ks2_information"]
@@ -140,8 +167,9 @@ def get_config(config_path: Path = CONFIG_PATH) -> ConfigModel:
     census_years = config["census_years"]
 
     return ConfigModel(
-        schools_urns=schools,
-        schools_names=list[str](schools.values()),
+        schools_urns=schools_urns,
+        schools_names=list(schools_urns.values()),
+        school_addresses=school_addresses,
         years=config["years"],
         institutional_urls=_dataset_urls(*institutional_config.values()),
         ks2_information_urls=_dataset_urls(ks2_information_config),
@@ -162,11 +190,6 @@ def get_catchment_distances(config_path: Path = CATCHMENT_DISTANCES_PATH) -> dic
     catchment_distances: dict = _load_json_config(config_path)
     return catchment_distances
 
-
-def get_school_addresses(config_path: Path = SCHOOL_ADDRESSES_PATH) -> dict:
-    """Load the school locations and return as a dictionary."""
-    school_addresses: dict = _load_json_config(config_path)
-    return school_addresses
 
 def main(config_path: Path = CONFIG_PATH) -> ConfigModel:
     return get_config(config_path)

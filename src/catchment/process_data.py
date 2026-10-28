@@ -1,19 +1,18 @@
 from geopy.geocoders import ArcGIS
 from geopy.location import Location
 
-from config.config import CatchmentDistances, SchoolCoords, get_catchment_distances, get_school_addresses
+from config.config import CatchmentDistances, SchoolCoords, get_catchment_distances, get_config
 from shared_funcitons import logger
 
 
-# Get the school addresses and catchment distances
-school_locations: dict = get_school_addresses()
+# Get the catchment distances
 catchment_distances: CatchmentDistances = get_catchment_distances()
 
 
 class CatchmentProcessor:
     """Processor for catchment data."""
     def __init__(self):
-        self.school_locations: dict[str, str] = school_locations
+        self.school_locations: dict[str, str] = get_config().school_addresses
         self.school_coords: SchoolCoords = {}
 
 

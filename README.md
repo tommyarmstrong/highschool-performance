@@ -9,7 +9,7 @@ Written to inform parent's choices in applying for year 7 places.
 Configurations, such as which schools and years, to analyse are set in the JSON files under `src\config`. 
 
    - To change general settigns, edit `src/settings.json`
-   - To add school addresses for geolocation, edit `src/school_addresses.json`
+   - To add or change schools, including names, URNs, and addresses, edit `src/config/schools.json`
    - To add school catchment distances, typically available from authority websites, edit `src\catchment_distances.json`
 
 
