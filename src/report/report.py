@@ -99,9 +99,10 @@ _POSITION_KEYS = ("left", "top", "width", "height")
 PICTURE_BOTTOM_GAP_INCHES = 0.5
 TABLE_ROW_HEIGHT_INCHES = 0.32
 TABLE_TITLE_GAP_INCHES = 0.5
-_TEMPLATE_TABLE_STYLE = "{4C3C2611-4C71-4FC5-86AE-919BDF0F9419}"
 _HEADER_FILL = RGBColor(0xF2, 0xF2, 0xF2)
+_BODY_FILL = RGBColor(0xFF, 0xFF, 0xFF)
 _CELL_TEXT = RGBColor(0x00, 0x00, 0x00)
+_GRID_COLOR = "9E9E9E"
 
 
 def load_slides(path: Path) -> list[SlideDefinition]:
@@ -522,8 +523,7 @@ def _add_table(slide: Slide, shape: TableShape, slide_height: Length) -> None:
         left, top, width, height = position
 
     table = slide.shapes.add_table(row_count, column_count, left, top, width, height).table
-    _use_template_table_style(table)
-    table.first_row = shape["header"]
+    _drop_table_style(table)
     if "widths" in shape:
         _set_column_widths(table, width, shape["widths"])
 
@@ -537,14 +537,14 @@ def _add_table(slide: Slide, shape: TableShape, slide_height: Length) -> None:
             )
 
 
-def _use_template_table_style(table: Table) -> None:
-    """Point the table at the template style instead of python-pptx's default."""
+def _drop_table_style(table: Table) -> None:
+    """Remove the built-in style id. This template has no table styles to resolve it."""
     tbl_pr = table._tbl.tblPr
     if tbl_pr is None:
         return
     style_id = tbl_pr.find(qn("a:tableStyleId"))
     if style_id is not None:
-        style_id.text = _TEMPLATE_TABLE_STYLE
+        tbl_pr.remove(style_id)
 
 
 def _set_column_widths(table: Table, width: Length, weights: list[float]) -> None:
@@ -563,23 +563,49 @@ def _set_column_widths(table: Table, width: Length, weights: list[float]) -> Non
 
 
 def _write_cell(cell: _Cell, value: str, header: bool, size: float | None) -> None:
-    """Write one cell, bolding and shading a header."""
+    """Write one cell with its own text, fill, and borders."""
     cell.text = value
     cell.vertical_anchor = MSO_ANCHOR.MIDDLE
     text_frame = cell.text_frame
     text_frame.word_wrap = True
     paragraph = text_frame.paragraphs[0]
     paragraph.alignment = PP_ALIGN.LEFT
-    if not paragraph.runs:
-        return
-    run = paragraph.runs[0]
-    run.font.color.rgb = _CELL_TEXT
-    if size is not None:
-        run.font.size = Pt(size)
-    if header:
-        run.font.bold = True
-        cell.fill.solid()
-        cell.fill.fore_color.rgb = _HEADER_FILL
+    if paragraph.runs:
+        run = paragraph.runs[0]
+        run.font.color.rgb = _CELL_TEXT
+        if size is not None:
+            run.font.size = Pt(size)
+        if header:
+            run.font.bold = True
+    cell.fill.solid()
+    cell.fill.fore_color.rgb = _HEADER_FILL if header else _BODY_FILL
+    _set_cell_borders(cell)
+
+
+def _set_cell_borders(cell: _Cell) -> None:
+    """Draw the grid on the cell. A missing table style does not supply borders."""
+    tc_pr = cell._tc.get_or_add_tcPr()
+    for edge in ("lnL", "lnR", "lnT", "lnB"):
+        for existing in list(tc_pr.findall(qn(f"a:{edge}"))):
+            tc_pr.remove(existing)
+        line = OxmlElement(f"a:{edge}")
+        line.set("w", "9525")
+        line.set("cap", "flat")
+        line.set("cmpd", "sng")
+        line.set("algn", "ctr")
+        fill = OxmlElement("a:solidFill")
+        color = OxmlElement("a:srgbClr")
+        color.set("val", _GRID_COLOR)
+        fill.append(color)
+        line.append(fill)
+        dash = OxmlElement("a:prstDash")
+        dash.set("val", "solid")
+        line.append(dash)
+        solid = tc_pr.find(qn("a:solidFill"))
+        if solid is None:
+            tc_pr.append(line)
+        else:
+            solid.addprevious(line)
 
 
 def _reorder_slides(prs: PresentationDocument, order: list[Slide]) -> None:
