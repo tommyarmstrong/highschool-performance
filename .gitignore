@@ -13,6 +13,8 @@ data/processed/*
 !data/processed/.gitkeep
 charts/*
 reports/*
+!reports/.gitkeep
+!reports/full_report.pptx
 !charts/.gitkeep
 !reports/.gitkeep
 !charts/a8_ks2_scatter.png

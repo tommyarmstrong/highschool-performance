@@ -4,6 +4,10 @@ Analysis of English secondary school performance, applications and catchments, u
 
 Written to inform parent's choices in applying for year 7 places. 
 
+## Output Report (Example)
+
+A typical report (as a slide deck) is vailable in [Full Report](reports/full_report.pptx)
+
 ## Configuration
 
 Configurations, such as which schools and years, to analyse are set in the JSON files under `src\config`. 
