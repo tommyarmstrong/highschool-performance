@@ -970,7 +970,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def main(deck: str | Path | None = None) -> None:
+def generate_slides(deck: str | Path | None = None) -> None:
     """Build the slides in a deck JSON file and save the presentation."""
     config = get_config()
     deck_path = _resolve_deck(deck, config.project_root)
@@ -984,6 +984,10 @@ def main(deck: str | Path | None = None) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     prs.save(str(output_path))
     logger.info(f"Saved report to {output_path}")
+
+
+def main(deck: str | Path | None = None) -> None:
+    generate_slides(deck)
 
 
 if __name__ == "__main__":

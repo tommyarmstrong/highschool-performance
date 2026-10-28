@@ -145,7 +145,7 @@
         "shapes": [
             {
                 "type": "title",
-                "text": "Attainment 8 by sex"
+                "text": "Attainment 8 by sex 2023 - 2026"
             },
             {
                 "type": "picture",
@@ -159,7 +159,7 @@
         "shapes": [
             {
                 "type": "title",
-                "text": "Attainment 8 by sex"
+                "text": "Attainment 8 by sex 2023 - 2026"
             },
             {
                 "type": "picture",
@@ -173,7 +173,7 @@
         "shapes": [
             {
                 "type": "title",
-                "text": "Attainment 8 by sex"
+                "text": "Attainment 8 by sex 2023 - 2026"
             },
             {
                 "type": "picture",
@@ -187,7 +187,7 @@
         "shapes": [
             {
                 "type": "title",
-                "text": "Progress 8 by sex"
+                "text": "Progress 8 by sex 2023 and 2024"
             },
             {
                 "type": "picture",
@@ -235,6 +235,76 @@
     },
     {
         "number": 20,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Total Applications Trend"
+            },
+            {
+                "type": "picture",
+                "file": "total_applications.png"
+            }
+        ]
+    },
+    {
+        "number": 21,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "First Choice Applications Trend"
+            },
+            {
+                "type": "picture",
+                "file": "first_choice_applications.png"
+            }
+        ]
+    },
+    {
+        "number": 22,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Applications, Offers and Year 7 Rolls"
+            },
+            {
+                "type": "picture",
+                "file": "applications_and_rolls_AP-F-G.png"
+            }
+        ]
+    },
+    {
+        "number": 23,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Applications, Offers and Year 7 Rolls"
+            },
+            {
+                "type": "picture",
+                "file": "applications_and_rolls_G-H-HW.png"
+            }
+        ]
+    },
+    {
+        "number": 24,
+        "layout": "TITLE_ONLY",
+        "shapes": [
+            {
+                "type": "title",
+                "text": "Applications, Offers and Year 7 Rolls'"
+            },
+            {
+                "type": "picture",
+                "file": "applications_and_rolls_Ho-PV-S.png"
+            }
+        ]
+    },
+    {
+        "number": 25,
         "layout": "SECTION_HEADER",
         "shapes": [
             {
@@ -244,7 +314,7 @@
         ]
     },
     {
-        "number": 21,
+        "number": 26,
         "layout": "TITLE_ONLY",
         "shapes": [
             {
@@ -258,7 +328,7 @@
         ]
     },
     {
-        "number": 22,
+        "number": 27,
         "layout": "TITLE_ONLY",
         "shapes": [
             {
@@ -272,7 +342,7 @@
         ]
     },
     {
-        "number": 23,
+        "number": 28,
         "layout": "TITLE_ONLY",
         "shapes": [
             {
@@ -286,7 +356,7 @@
         ]
     },
     {
-        "number": 24,
+        "number": 29,
         "layout": "TITLE_ONLY",
         "shapes": [
             {
@@ -300,7 +370,7 @@
         ]
     },
     {
-        "number": 25,
+        "number": 30,
         "layout": "TITLE_ONLY",
         "shapes": [
             {
@@ -314,7 +384,7 @@
         ]
     },
     {
-        "number": 26,
+        "number": 31,
         "layout": "TITLE_ONLY",
         "shapes": [
             {
@@ -328,11 +398,11 @@
         ]
     },
     {
-        "number": 27,
+        "number": 32,
         "include": "data_sources.json"
     },
     {
-        "number": 28,
+        "number": 33,
         "include": "project_license.json"
     }    
 ]

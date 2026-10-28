@@ -161,6 +161,7 @@ def format_year_axis(ax, data):
 def plot_applications_and_rolls(
     df: pd.DataFrame,
     schools: list[str] | None = None,
+    file_name: str = "applications_and_rolls.png",
     save_png: bool = True,
 ) -> None:
     """Plot applications, offers, and Year 7 rolls over time."""
@@ -254,7 +255,7 @@ def plot_applications_and_rolls(
     )
 
     plt.tight_layout(rect=(0, 0, 0.81, 0.98))
-    _finish_plot(fig, "applications_and_rolls.png", save_png)
+    _finish_plot(fig, file_name, save_png)
 
 
 def plot_stacked_applications(
@@ -722,11 +723,33 @@ def plot_places_data(save_png: bool = True) -> None:
     plot_first_choice_offer_rate(df)
 
     # 3. Plot census data
-    plot_applications_and_rolls(df)
+    # Three school panels fit on a slide, so split the full list into groups.
+    applications_and_rolls_groups: dict[str, list[str]] = {
+        "applications_and_rolls_AP-F-G.png": [
+            "Alexandra Park",
+            "Fortismere",
+            "Gladesmore",
+        ],
+        "applications_and_rolls_G-H-HW.png": [
+            "Greig",
+            "Heartlands",
+            "Highgate Wood",
+        ],
+        "applications_and_rolls_Ho-PV-S.png": [
+            "Hornsey",
+            "Park View",
+            "Skinners'",
+        ],
+        "applications_and_rolls_STM.png": [
+            "St Thomas More",
+        ],
+    }
+    for file_name, schools in applications_and_rolls_groups.items():
+        plot_applications_and_rolls(df, schools=schools, file_name=file_name)
+
     plot_roll_vs_offers(df)
     plot_offers_vs_roll(df)
 
-    schools = ["Greig", "Heartlands", "Hgihgate Wood", "Parklands"]
-    plot_applications_and_rolls(df, schools=schools)
+    schools = ["Greig", "Heartlands", "Highgate Wood", "Park View"]
     plot_roll_vs_offers(df, schools=schools)
     plot_offers_vs_roll(df, schools=schools)

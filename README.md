@@ -38,11 +38,12 @@ To run the full pipeline, from `src/` run:
 python -m app
 ```
 
-With no flags, both pipelines get their data and then plot it. `--performance` or `--places` selects a pipeline. `--get-data` or `--plot-data` selects a step. Leave a pair unset to run both of that pair.
+With no flags, both data pipelines get their data and then plot it, and the slide deck is built. `--performance`, `--places`, or `--slides` selects a pipeline. `--get-data` or `--plot-data` selects a step. Leave a group unset to run all of that group. A get-data-only run does not build slides unless `--slides` is set. See [Slide decks](#slide-decks) for how the report is laid out and rebuilt.
 
 ```bash
 python -m app --performance
 python -m app --places
+python -m app --slides
 python -m app --performance --get-data
 python -m app --places --plot-data
 ```
@@ -53,11 +54,57 @@ Each pipeline can also be run on its own:
 python -m performance.run_performance
 python -m places.run_places
 python -m catchment.run_catchment
+python -m report.run_reports
 ```
 
 The catchment pipeline loads school coordinates and catchment distances from config, then writes catchment charts under `charts/`.
 
 Raw and processed data are saved under `data/` and charts under `charts/`. Stored data will be used where it is available. To reprocess data, for example after a config change, delete the relevant files in `/data/processed/`. To re-download raw data from source, delete bothe processed data files in `data/processed/` and `data/raw/`.
+
+## Slide decks
+
+The report is a PowerPoint file. The default deck, `src/decks_layout/full_report.json`, is written to `reports/full_report.pptx`. Slides are filled from that JSON and from the PNG files in `charts/`, using the layouts in `templates/report_slides_template.pptx`.
+
+Build it from `src/` once the charts exist:
+
+```bash
+python -m app --slides
+python -m report.run_reports
+python -m report.generate_slides
+```
+
+`python -m app` gets the data, plots the charts, then builds the deck. `--slides` only builds the deck, so every chart named in the JSON must already be in `charts/`.
+
+A deck is a JSON list. Each slide has a `number`, a `layout`, and `shapes`. Numbers start at 1, are unique, and run without gaps. Slide 1 replaces the placeholder slide in the template. Later numbers are added after it.
+
+The report uses `TITLE`, `SECTION_HEADER`, `TITLE_AND_BODY`, and `TITLE_ONLY`. The `layout` value must match a layout name in the template.
+
+A chart slide is a title and a picture. `file` is the filename under `charts/`:
+
+```json
+{
+    "number": 21,
+    "layout": "TITLE_ONLY",
+    "shapes": [
+        {"type": "title", "text": "First Choice Applications Trend"},
+        {"type": "picture", "file": "first_choice_applications.png"}
+    ]
+}
+```
+
+`text_box` holds paragraphs. A paragraph can be a `text` string, or `runs` with `bold`, `italic`, and `hyperlink`. Set `"bullet": true` for a bullet. `table` takes `rows`; the first row is the header when `"header": true`.
+
+Slides reused across a deck, such as the school list, live in their own file next to `full_report.json` and are pulled in with `include`. The included file has `layout` and `shapes` only. Its slide number is set on the include. If the file is a list of slides, they take consecutive numbers from that starting number.
+
+```json
+{"number": 2, "include": "schools.json"}
+```
+
+To build another deck, from `src/` pass its JSON path or bare name. A bare name is read from `src/decks_layout`. The output file is `reports/<deck name>.pptx`.
+
+```bash
+python -m report.generate_slides full_report
+```
 
 ## Layout
 
@@ -67,12 +114,16 @@ data/processed/              cleaned tables used for analysis
 data/raw/                    downloaded source files
 maps/                        saved maps
 notebooks/                   exploratory analysis
+reports/                     generated PowerPoint decks
+templates/                   slide deck template
 src/app.py                   entrypoint for the pipelines
 src/catchment/               catchment maps
 src/config/                  schools, years, and dataset URLs
 src/data_models/             shared configuration model
+src/decks_layout/            slide deck JSON
 src/performance/             attainment and progress pipeline
 src/places/                  applications and Year 7 roll pipeline
+src/report/                  slide deck builder
 src/shared_funcitons.py      download, load, and logging helpers
 tests/                       tests
 environment.yml              conda environment
